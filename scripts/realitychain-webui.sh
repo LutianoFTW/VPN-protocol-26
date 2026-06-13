@@ -93,7 +93,8 @@ import_env_to_settings() {
 	setting_set_if_missing rch_vless_uuid "${VLESS_UUID:-00000000-0000-4000-8000-000000000000}"
 	setting_set_if_missing rch_reality_public_key "${REALITY_PUBLIC_KEY:-}"
 	setting_set_if_missing rch_reality_short_id "${REALITY_SHORT_ID:-}"
-	setting_set_if_missing rch_reality_server_name "${REALITY_SERVER_NAME:-www.microsoft.com}"
+	setting_set_if_missing rch_reality_server_name "${REALITY_SERVER_NAME:-vk.com}"
+	setting_set_if_missing rch_reality_dest "${REALITY_DEST:-vk.com:443}"
 	setting_set_if_missing rch_reality_fingerprint "${REALITY_FINGERPRINT:-chrome}"
 	setting_set_if_missing rch_ks_enabled "${KILLSWITCH_ENABLED:-1}"
 	setting_set_if_missing rch_ks_interval "${KILLSWITCH_WATCH_INTERVAL:-10}"
@@ -113,7 +114,8 @@ sync_settings_to_env() {
 	vless_uuid=$(clean_value "$(setting_get_or rch_vless_uuid "${VLESS_UUID:-00000000-0000-4000-8000-000000000000}")")
 	reality_public_key=$(clean_value "$(setting_get_or rch_reality_public_key "${REALITY_PUBLIC_KEY:-}")")
 	reality_short_id=$(clean_value "$(setting_get_or rch_reality_short_id "${REALITY_SHORT_ID:-}")")
-	reality_server_name=$(clean_value "$(setting_get_or rch_reality_server_name "${REALITY_SERVER_NAME:-www.microsoft.com}")")
+	reality_server_name=$(clean_value "$(setting_get_or rch_reality_server_name "${REALITY_SERVER_NAME:-vk.com}")")
+	reality_dest=$(clean_value "$(setting_get_or rch_reality_dest "${REALITY_DEST:-vk.com:443}")")
 	reality_fingerprint=$(clean_value "$(setting_get_or rch_reality_fingerprint "${REALITY_FINGERPRINT:-chrome}")")
 	killswitch_enabled=$(clean_value "$(setting_get_or rch_ks_enabled "${KILLSWITCH_ENABLED:-1}")")
 	killswitch_interval=$(clean_value "$(setting_get_or rch_ks_interval "${KILLSWITCH_WATCH_INTERVAL:-10}")")
@@ -133,7 +135,7 @@ sync_settings_to_env() {
 		write_env_line REALITY_PRIVATE_KEY "${REALITY_PRIVATE_KEY:-}"
 		write_env_line REALITY_SHORT_ID "$reality_short_id"
 		write_env_line REALITY_SERVER_NAME "$reality_server_name"
-		write_env_line REALITY_DEST "${REALITY_DEST:-$reality_server_name:443}"
+		write_env_line REALITY_DEST "$reality_dest"
 		write_env_line REALITY_FINGERPRINT "$reality_fingerprint"
 		write_env_line LAN_IFACE "${LAN_IFACE:-br0}"
 		write_env_line LOCAL_TPROXY_PORT "${LOCAL_TPROXY_PORT:-12345}"

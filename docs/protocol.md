@@ -28,8 +28,26 @@ The server runs a matching VLESS inbound with REALITY:
 
 - generated X25519 private key,
 - matching `shortIds`,
-- a realistic `dest` target such as `www.microsoft.com:443`,
+- a realistic `dest` target such as `vk.com:443`,
 - a VLESS UUID shared with the router.
+
+## Russian/VK REALITY camouflage profile
+
+The default examples are configured for a Russian/VK-oriented TLS profile:
+
+```sh
+REALITY_SERVER_NAME=vk.com
+REALITY_DEST=vk.com:443
+REALITY_FINGERPRINT=chrome
+```
+
+`vk.com` is used only as the REALITY camouflage `serverName`/`dest` profile.
+`SERVER_ADDRESS` remains the operator-controlled Xray server address. Both the
+router client and the Xray server template must use the same
+`REALITY_SERVER_NAME`, `REALITY_DEST`, `REALITY_SHORT_ID`, and REALITY keypair.
+
+Before deploying, test that the selected camouflage destination is reachable
+from the server network on TCP/443 and presents a normal TLS service.
 
 ## Router plane
 

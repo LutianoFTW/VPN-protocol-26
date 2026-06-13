@@ -28,7 +28,7 @@ The page exposes:
 - enable/disable at boot,
 - server address and port,
 - VLESS UUID,
-- REALITY public key, short ID, server name, and fingerprint,
+- REALITY public key, short ID, server name, destination, and fingerprint,
 - optional blockchain RPC URL, contract address, and storage slot,
 - policy file path,
 - automatic kill-switch enablement and watchdog interval,
@@ -81,6 +81,7 @@ key length. RealityChain uses the `rch_` namespace:
 - `rch_reality_public_key`
 - `rch_reality_short_id`
 - `rch_reality_server_name`
+- `rch_reality_dest`
 - `rch_reality_fingerprint`
 - `rch_ks_enabled`
 - `rch_ks_interval`

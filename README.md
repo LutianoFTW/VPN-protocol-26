@@ -26,6 +26,8 @@ policy hash on an EVM-compatible chain.
   Asuswrt-Merlin Addons API.
 - Kill switch and watchdog that can block LAN forwarding automatically if the
   Xray tunnel process is interrupted.
+- Russian/VK-oriented REALITY camouflage defaults using `vk.com:443` as the
+  TLS destination profile.
 
 ## Router requirements
 
@@ -63,6 +65,18 @@ At minimum, set:
 - `REALITY_PUBLIC_KEY`
 - `REALITY_SHORT_ID`
 - `REALITY_SERVER_NAME`
+
+By default, the sample config uses a Russian/VK-oriented REALITY camouflage
+profile:
+
+```sh
+REALITY_SERVER_NAME=vk.com
+REALITY_DEST=vk.com:443
+REALITY_FINGERPRINT=chrome
+```
+
+`SERVER_ADDRESS` still points to your own Xray server. The VK hostname is the
+REALITY camouflage destination and must match the server-side template values.
 
 To enable blockchain-gated startup, also set:
 

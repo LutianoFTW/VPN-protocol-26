@@ -42,7 +42,8 @@ function initial() {
 	setField("realitychain_vless_uuid", setting("rch_vless_uuid", "00000000-0000-4000-8000-000000000000"));
 	setField("realitychain_reality_public_key", setting("rch_reality_public_key", ""));
 	setField("realitychain_reality_short_id", setting("rch_reality_short_id", ""));
-	setField("realitychain_reality_server_name", setting("rch_reality_server_name", "www.microsoft.com"));
+	setField("realitychain_reality_server_name", setting("rch_reality_server_name", "vk.com"));
+	setField("realitychain_reality_dest", setting("rch_reality_dest", "vk.com:443"));
 	setField("realitychain_reality_fingerprint", setting("rch_reality_fingerprint", "chrome"));
 	document.getElementById("realitychain_killswitch_enabled").checked = setting("rch_ks_enabled", "1") !== "0";
 	setField("realitychain_killswitch_interval", setting("rch_ks_interval", "10"));
@@ -71,6 +72,7 @@ function storeSettings() {
 	custom_settings.rch_reality_public_key = fieldValue("realitychain_reality_public_key");
 	custom_settings.rch_reality_short_id = fieldValue("realitychain_reality_short_id");
 	custom_settings.rch_reality_server_name = fieldValue("realitychain_reality_server_name");
+	custom_settings.rch_reality_dest = fieldValue("realitychain_reality_dest");
 	custom_settings.rch_reality_fingerprint = fieldValue("realitychain_reality_fingerprint");
 	custom_settings.rch_ks_enabled = document.getElementById("realitychain_killswitch_enabled").checked ? "1" : "0";
 	custom_settings.rch_ks_interval = fieldValue("realitychain_killswitch_interval");
@@ -215,6 +217,10 @@ function applySettings(actionScript) {
 	<tr>
 		<th>REALITY server name</th>
 		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_reality_server_name" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>REALITY destination</th>
+		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_reality_dest" autocorrect="off" autocapitalize="off" /></td>
 	</tr>
 	<tr>
 		<th>REALITY fingerprint</th>

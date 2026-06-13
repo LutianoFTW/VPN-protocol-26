@@ -6,7 +6,9 @@
     "transport": "xray-vless-reality",
     "server": "vpn.example.net",
     "port": 443,
-    "reality_server_name": "www.microsoft.com",
+    "reality_server_name": "vk.com",
+    "reality_dest": "vk.com:443",
+    "camouflage_profile": "ru-vk",
     "short_id": "0123456789abcdef"
   },
   "router": {
