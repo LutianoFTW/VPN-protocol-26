@@ -44,6 +44,8 @@ function initial() {
 	setField("realitychain_reality_short_id", setting("rch_reality_short_id", ""));
 	setField("realitychain_reality_server_name", setting("rch_reality_server_name", "www.microsoft.com"));
 	setField("realitychain_reality_fingerprint", setting("rch_reality_fingerprint", "chrome"));
+	document.getElementById("realitychain_killswitch_enabled").checked = setting("rch_ks_enabled", "1") !== "0";
+	setField("realitychain_killswitch_interval", setting("rch_ks_interval", "10"));
 	setField("realitychain_anchor_rpc_url", setting("rch_anchor_rpc_url", ""));
 	setField("realitychain_anchor_contract", setting("rch_anchor_contract", ""));
 	setField("realitychain_anchor_storage_slot", setting("rch_anchor_storage_slot", ""));
@@ -52,6 +54,7 @@ function initial() {
 	document.getElementById("realitychain_status").innerHTML = setting("rch_status", "unknown");
 	document.getElementById("realitychain_anchor_status").innerHTML = setting("rch_anchor_status", "not checked");
 	document.getElementById("realitychain_policy_hash").innerHTML = setting("rch_policy_hash", "not calculated");
+	document.getElementById("realitychain_killswitch_state").innerHTML = setting("rch_ks_state", "unknown");
 	document.getElementById("realitychain_updated_at").innerHTML = setting("rch_updated_at", "never");
 }
 
@@ -69,6 +72,8 @@ function storeSettings() {
 	custom_settings.rch_reality_short_id = fieldValue("realitychain_reality_short_id");
 	custom_settings.rch_reality_server_name = fieldValue("realitychain_reality_server_name");
 	custom_settings.rch_reality_fingerprint = fieldValue("realitychain_reality_fingerprint");
+	custom_settings.rch_ks_enabled = document.getElementById("realitychain_killswitch_enabled").checked ? "1" : "0";
+	custom_settings.rch_ks_interval = fieldValue("realitychain_killswitch_interval");
 	custom_settings.rch_anchor_rpc_url = fieldValue("realitychain_anchor_rpc_url");
 	custom_settings.rch_anchor_contract = fieldValue("realitychain_anchor_contract");
 	custom_settings.rch_anchor_storage_slot = fieldValue("realitychain_anchor_storage_slot");
@@ -145,8 +150,33 @@ function applySettings(actionScript) {
 		<td><span id="realitychain_policy_hash">not calculated</span></td>
 	</tr>
 	<tr>
+		<th>Kill switch</th>
+		<td><span id="realitychain_killswitch_state">unknown</span></td>
+	</tr>
+	<tr>
 		<th>Last update</th>
 		<td><span id="realitychain_updated_at">never</span></td>
+	</tr>
+</table>
+
+<div style="margin-top:12px;"></div>
+
+<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
+	<thead>
+	<tr>
+		<td colspan="2">Kill switch</td>
+	</tr>
+	</thead>
+	<tr>
+		<th>Enable automatic kill switch</th>
+		<td>
+			<input type="checkbox" id="realitychain_killswitch_enabled" />
+			Block LAN forwarding if the tunnel process stops.
+		</td>
+	</tr>
+	<tr>
+		<th>Watch interval</th>
+		<td><input type="text" maxlength="5" class="input_6_table" id="realitychain_killswitch_interval" autocorrect="off" autocapitalize="off" /> seconds</td>
 	</tr>
 </table>
 
@@ -221,6 +251,8 @@ function applySettings(actionScript) {
 <div class="apply_gen">
 	<input type="button" class="button_gen" onclick="applySettings('restart_realitychain');" value="Apply and restart" />
 	<input type="button" class="button_gen" onclick="applySettings('stop_realitychain');" value="Stop tunnel" />
+	<input type="button" class="button_gen" onclick="applySettings('start_realitychainks');" value="Engage kill switch" />
+	<input type="button" class="button_gen" onclick="applySettings('stop_realitychainks');" value="Clear kill switch" />
 </div>
 </td>
 </tr>

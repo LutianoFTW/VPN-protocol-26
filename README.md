@@ -24,6 +24,8 @@ policy hash on an EVM-compatible chain.
 - Firewall helper for Merlin TPROXY rules.
 - Merlin WebUI page mounted into the firmware Tools menu through the
   Asuswrt-Merlin Addons API.
+- Kill switch and watchdog that can block LAN forwarding automatically if the
+  Xray tunnel process is interrupted.
 
 ## Router requirements
 
@@ -78,7 +80,9 @@ Then start the service:
 On supported Merlin builds, the installer also adds a **RealityChain** tab
 under the firmware **Tools** section. Use that page to edit the router tunnel
 settings, apply/restart the service, stop the tunnel, and view the last known
-service status and policy hash.
+service status and policy hash. The page also includes kill-switch controls
+for enabling automatic protection, manually engaging the block, and clearing it
+after recovery.
 
 ## RealityChain anchor model
 

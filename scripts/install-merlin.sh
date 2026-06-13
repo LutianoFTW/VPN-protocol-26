@@ -101,12 +101,14 @@ install_xray_if_needed() {
 install_files() {
 	run mkdir -p "$INSTALL_DIR" "$INSTALL_DIR/templates" "$INSTALL_DIR/webui"
 	run cp "$REPO_DIR/scripts/realitychainctl" "$INSTALL_DIR/realitychainctl"
+	run cp "$REPO_DIR/scripts/realitychain-killswitch.sh" "$INSTALL_DIR/realitychain-killswitch.sh"
 	run cp "$REPO_DIR/scripts/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-tproxy.sh"
+	run cp "$REPO_DIR/scripts/realitychain-watchdog.sh" "$INSTALL_DIR/realitychain-watchdog.sh"
 	run cp "$REPO_DIR/scripts/realitychain-webui.sh" "$INSTALL_DIR/realitychain-webui.sh"
 	run cp "$REPO_DIR/templates/xray-client.json.tpl" "$INSTALL_DIR/templates/xray-client.json.tpl"
 	run cp "$REPO_DIR/templates/xray-server.json.tpl" "$INSTALL_DIR/templates/xray-server.json.tpl"
 	run cp "$REPO_DIR/webui/RealityChain.asp" "$INSTALL_DIR/webui/RealityChain.asp"
-	run chmod 0755 "$INSTALL_DIR/realitychainctl" "$INSTALL_DIR/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-webui.sh"
+	run chmod 0755 "$INSTALL_DIR/realitychainctl" "$INSTALL_DIR/realitychain-killswitch.sh" "$INSTALL_DIR/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-watchdog.sh" "$INSTALL_DIR/realitychain-webui.sh"
 
 	if [ ! -f "$INSTALL_DIR/client.env" ]; then
 		run cp "$REPO_DIR/examples/client.env" "$INSTALL_DIR/client.env"
@@ -140,18 +142,44 @@ PID_FILE=/var/run/realitychain-xray.pid
 export REALITYCHAIN_HOME
 export REALITYCHAIN_TEMPLATE_DIR=\$REALITYCHAIN_HOME/templates
 
+killswitch_enabled() {
+	KILLSWITCH_ENABLED=1
+	if [ -f "\$ENV_FILE" ]; then
+		# shellcheck disable=SC1090
+		. "\$ENV_FILE"
+	fi
+	[ "\${KILLSWITCH_ENABLED:-1}" = "1" ]
+}
+
 start() {
 	"\$REALITYCHAIN_HOME/realitychainctl" guarded-render "\$POLICY_FILE" "\$ENV_FILE" "\$CONFIG_FILE"
+	if killswitch_enabled; then
+		"\$REALITYCHAIN_HOME/realitychain-killswitch.sh" engage "\$ENV_FILE" || true
+	fi
 	"\$REALITYCHAIN_HOME/realitychain-tproxy.sh" start "\$ENV_FILE"
 	"\$XRAY_BIN" run -config "\$CONFIG_FILE" >/tmp/realitychain-xray.log 2>&1 &
 	echo \$! >"\$PID_FILE"
+	sleep 2
+	if kill -0 "\$(cat "\$PID_FILE")" 2>/dev/null; then
+		"\$REALITYCHAIN_HOME/realitychain-killswitch.sh" clear "\$ENV_FILE" || true
+		"\$REALITYCHAIN_HOME/realitychain-watchdog.sh" start "\$ENV_FILE" || true
+	else
+		"\$REALITYCHAIN_HOME/realitychain-killswitch.sh" engage "\$ENV_FILE" || true
+		exit 1
+	fi
 }
 
 stop() {
+	"\$REALITYCHAIN_HOME/realitychain-watchdog.sh" stop "\$ENV_FILE" || true
 	"\$REALITYCHAIN_HOME/realitychain-tproxy.sh" stop "\$ENV_FILE" || true
 	if [ -f "\$PID_FILE" ]; then
 		kill "\$(cat "\$PID_FILE")" 2>/dev/null || true
 		rm -f "\$PID_FILE"
+	fi
+	if killswitch_enabled; then
+		"\$REALITYCHAIN_HOME/realitychain-killswitch.sh" engage "\$ENV_FILE" || true
+	else
+		"\$REALITYCHAIN_HOME/realitychain-killswitch.sh" clear "\$ENV_FILE" || true
 	fi
 }
 

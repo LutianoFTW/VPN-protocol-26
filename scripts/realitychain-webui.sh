@@ -95,6 +95,8 @@ import_env_to_settings() {
 	setting_set_if_missing rch_reality_short_id "${REALITY_SHORT_ID:-}"
 	setting_set_if_missing rch_reality_server_name "${REALITY_SERVER_NAME:-www.microsoft.com}"
 	setting_set_if_missing rch_reality_fingerprint "${REALITY_FINGERPRINT:-chrome}"
+	setting_set_if_missing rch_ks_enabled "${KILLSWITCH_ENABLED:-1}"
+	setting_set_if_missing rch_ks_interval "${KILLSWITCH_WATCH_INTERVAL:-10}"
 	setting_set_if_missing rch_anchor_rpc_url "${ANCHOR_RPC_URL:-}"
 	setting_set_if_missing rch_anchor_contract "${ANCHOR_CONTRACT:-}"
 	setting_set_if_missing rch_anchor_storage_slot "${ANCHOR_STORAGE_SLOT:-}"
@@ -113,6 +115,8 @@ sync_settings_to_env() {
 	reality_short_id=$(clean_value "$(setting_get_or rch_reality_short_id "${REALITY_SHORT_ID:-}")")
 	reality_server_name=$(clean_value "$(setting_get_or rch_reality_server_name "${REALITY_SERVER_NAME:-www.microsoft.com}")")
 	reality_fingerprint=$(clean_value "$(setting_get_or rch_reality_fingerprint "${REALITY_FINGERPRINT:-chrome}")")
+	killswitch_enabled=$(clean_value "$(setting_get_or rch_ks_enabled "${KILLSWITCH_ENABLED:-1}")")
+	killswitch_interval=$(clean_value "$(setting_get_or rch_ks_interval "${KILLSWITCH_WATCH_INTERVAL:-10}")")
 	anchor_rpc_url=$(clean_value "$(setting_get_or rch_anchor_rpc_url "${ANCHOR_RPC_URL:-}")")
 	anchor_contract=$(clean_value "$(setting_get_or rch_anchor_contract "${ANCHOR_CONTRACT:-}")")
 	anchor_storage_slot=$(clean_value "$(setting_get_or rch_anchor_storage_slot "${ANCHOR_STORAGE_SLOT:-}")")
@@ -133,6 +137,9 @@ sync_settings_to_env() {
 		write_env_line REALITY_FINGERPRINT "$reality_fingerprint"
 		write_env_line LAN_IFACE "${LAN_IFACE:-br0}"
 		write_env_line LOCAL_TPROXY_PORT "${LOCAL_TPROXY_PORT:-12345}"
+		write_env_line KILLSWITCH_ENABLED "$killswitch_enabled"
+		write_env_line KILLSWITCH_WATCH_INTERVAL "$killswitch_interval"
+		write_env_line KILLSWITCH_REJECT_WITH "${KILLSWITCH_REJECT_WITH:-icmp-port-unreachable}"
 		write_env_line ANCHOR_RPC_URL "$anchor_rpc_url"
 		write_env_line ANCHOR_CONTRACT "$anchor_contract"
 		write_env_line ANCHOR_STORAGE_SLOT "$anchor_storage_slot"
@@ -159,9 +166,16 @@ update_status() {
 		policy_hash=unavailable
 	fi
 
+	if [ -x "$REALITYCHAIN_HOME/realitychain-killswitch.sh" ] && [ -f "$ENV_FILE" ]; then
+		ks_state=$("$REALITYCHAIN_HOME/realitychain-killswitch.sh" status "$ENV_FILE" 2>/dev/null || printf 'unknown')
+	else
+		ks_state=unknown
+	fi
+
 	am_settings_set rch_status "$status"
 	am_settings_set rch_anchor_status "$anchor_status"
 	am_settings_set rch_policy_hash "$policy_hash"
+	am_settings_set rch_ks_state "$ks_state"
 	am_settings_set rch_updated_at "$(date '+%Y-%m-%d %H:%M:%S %Z' 2>/dev/null || date)"
 }
 
@@ -229,20 +243,36 @@ stop_service() {
 	update_status stopped
 }
 
+engage_killswitch() {
+	sync_settings_to_env
+	load_helper
+	"$REALITYCHAIN_HOME/realitychain-killswitch.sh" engage "$ENV_FILE" >/tmp/realitychain-webui-action.log 2>&1 || true
+	update_status manual_killswitch
+}
+
+clear_killswitch() {
+	sync_settings_to_env
+	load_helper
+	"$REALITYCHAIN_HOME/realitychain-killswitch.sh" clear "$ENV_FILE" >/tmp/realitychain-webui-action.log 2>&1 || true
+	update_status manual_clear
+}
+
 service_event() {
 	type=${1:-}
 	event=${2:-}
 
-	if [ "$event" != "realitychain" ]; then
-		exit 0
-	fi
-
-	case "$type" in
-		start|restart)
+	case "$event:$type" in
+		realitychain:start|realitychain:restart)
 			restart_service
 			;;
-		stop)
+		realitychain:stop)
 			stop_service
+			;;
+		realitychainks:start)
+			engage_killswitch
+			;;
+		realitychainks:stop)
+			clear_killswitch
 			;;
 	esac
 }
@@ -258,7 +288,7 @@ case "${1:-}" in
 		sync_settings_to_env
 		;;
 	status)
-		update_status manual
+		update_status "${2:-manual}"
 		;;
 	service-event)
 		shift

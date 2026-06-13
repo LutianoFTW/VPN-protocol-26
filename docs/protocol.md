@@ -6,7 +6,9 @@ Asuswrt-Merlin routers. It combines:
 1. **Data plane:** Xray VLESS over TCP with REALITY security and Vision flow.
 2. **Router plane:** Linux TPROXY rules on Asuswrt-Merlin to send LAN traffic
    into the local Xray inbound.
-3. **Policy plane:** an EVM-compatible blockchain storage slot containing the
+3. **Kill-switch plane:** filter rules and a local watchdog that block LAN
+   forwarding if the tunnel process is interrupted.
+4. **Policy plane:** an EVM-compatible blockchain storage slot containing the
    SHA-256 hash of the approved local policy file.
 
 ## Data plane
@@ -42,6 +44,26 @@ table:
 Reserved, private, multicast, and direct router ranges are returned before
 TPROXY redirection. TCP and UDP from LAN clients are then redirected into the
 local Xray TPROXY inbound.
+
+## Kill-switch plane
+
+The kill switch uses a dedicated filter chain:
+
+- filter chain: `REALITYCHAIN_KILLSWITCH`
+- hook: first matching `FORWARD` rule for `LAN_IFACE`
+- default LAN interface: `br0`
+
+When engaged, the chain allows reserved/private/local destinations and rejects
+other forwarded LAN traffic. Router-local traffic is not blocked, which lets
+the Xray process establish outbound REALITY sessions from the router itself.
+
+The installer-generated init script engages the kill switch before starting
+Xray, clears it once the Xray process is confirmed running, and starts
+`realitychain-watchdog.sh`. If the watchdog later sees the Xray PID disappear,
+it re-engages the kill switch and updates WebUI status.
+
+The watchdog detects process interruption. It does not prove that every remote
+site is reachable through the tunnel while Xray remains running.
 
 ## Policy plane
 

@@ -31,7 +31,10 @@ The page exposes:
 - REALITY public key, short ID, server name, and fingerprint,
 - optional blockchain RPC URL, contract address, and storage slot,
 - policy file path,
+- automatic kill-switch enablement and watchdog interval,
+- manual kill-switch engage and clear buttons,
 - last known service status,
+- last known kill-switch state,
 - last known anchor status,
 - last calculated policy hash.
 
@@ -45,6 +48,18 @@ Clicking **Stop tunnel** triggers:
 
 ```text
 stop_realitychain
+```
+
+Clicking **Engage kill switch** triggers:
+
+```text
+start_realitychainks
+```
+
+Clicking **Clear kill switch** triggers:
+
+```text
+stop_realitychainks
 ```
 
 The installer appends a small block to `/jffs/scripts/service-event` so those
@@ -67,6 +82,9 @@ key length. RealityChain uses the `rch_` namespace:
 - `rch_reality_short_id`
 - `rch_reality_server_name`
 - `rch_reality_fingerprint`
+- `rch_ks_enabled`
+- `rch_ks_interval`
+- `rch_ks_state`
 - `rch_anchor_rpc_url`
 - `rch_anchor_contract`
 - `rch_anchor_storage_slot`
@@ -86,5 +104,7 @@ The generated env file is mode `0600`.
 - The WebUI only stores client-side tunnel parameters. It does not expose the
   REALITY private key used by the server template.
 - Values are newline-stripped before writing `client.env`.
+- When the kill switch is engaged, it blocks LAN forwarding to non-private
+  destinations while preserving private/local network access.
 - The blockchain anchor remains optional; if RPC URL and contract are blank,
   startup is not chain-gated.
