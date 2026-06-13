@@ -51,8 +51,11 @@ need_cmd() {
 
 detect_xray_asset_arch() {
 	case "$(uname -m)" in
-		aarch64|arm64)
+		x86_64|amd64)
 			printf '64'
+			;;
+		aarch64|arm64)
+			printf 'arm64-v8a'
 			;;
 		armv7l|armv7*|armv8l)
 			printf 'arm32-v7a'
@@ -100,6 +103,7 @@ install_xray_if_needed() {
 
 install_files() {
 	run mkdir -p "$INSTALL_DIR" "$INSTALL_DIR/templates" "$INSTALL_DIR/webui"
+	run cp "$REPO_DIR/scripts/check-merlin-386-compat.sh" "$INSTALL_DIR/check-merlin-386-compat.sh"
 	run cp "$REPO_DIR/scripts/realitychainctl" "$INSTALL_DIR/realitychainctl"
 	run cp "$REPO_DIR/scripts/realitychain-killswitch.sh" "$INSTALL_DIR/realitychain-killswitch.sh"
 	run cp "$REPO_DIR/scripts/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-tproxy.sh"
@@ -108,7 +112,7 @@ install_files() {
 	run cp "$REPO_DIR/templates/xray-client.json.tpl" "$INSTALL_DIR/templates/xray-client.json.tpl"
 	run cp "$REPO_DIR/templates/xray-server.json.tpl" "$INSTALL_DIR/templates/xray-server.json.tpl"
 	run cp "$REPO_DIR/webui/RealityChain.asp" "$INSTALL_DIR/webui/RealityChain.asp"
-	run chmod 0755 "$INSTALL_DIR/realitychainctl" "$INSTALL_DIR/realitychain-killswitch.sh" "$INSTALL_DIR/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-watchdog.sh" "$INSTALL_DIR/realitychain-webui.sh"
+	run chmod 0755 "$INSTALL_DIR/check-merlin-386-compat.sh" "$INSTALL_DIR/realitychainctl" "$INSTALL_DIR/realitychain-killswitch.sh" "$INSTALL_DIR/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-watchdog.sh" "$INSTALL_DIR/realitychain-webui.sh"
 
 	if [ ! -f "$INSTALL_DIR/client.env" ]; then
 		run cp "$REPO_DIR/examples/client.env" "$INSTALL_DIR/client.env"

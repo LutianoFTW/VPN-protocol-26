@@ -43,6 +43,10 @@ check_rendered_json() {
 	else
 		printf 'validate: skipping JSON parser check; python3 or jq not found\n' >&2
 	fi
+
+	if grep -q 'geoip:' "$TMP_DIR/client.json"; then
+		fail "rendered client config depends on external geoip assets"
+	fi
 }
 
 check_policy_hash() {
@@ -70,10 +74,16 @@ check_webui_settings() {
 	done
 }
 
+check_xray_arch_mapping() {
+	grep -q "arm64-v8a" "$ROOT_DIR/scripts/install-merlin.sh" || fail "installer missing Xray ARM64 asset mapping"
+	grep -q "arm64-v8a" "$ROOT_DIR/scripts/check-merlin-386-compat.sh" || fail "compat checker missing Xray ARM64 asset mapping"
+}
+
 check_shell_syntax
 check_template_variables_documented
 check_rendered_json
 check_policy_hash
 check_webui_settings
+check_xray_arch_mapping
 
 printf 'validation passed\n'

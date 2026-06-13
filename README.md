@@ -48,8 +48,13 @@ On the Asuswrt-Merlin router:
 ```sh
 cd /tmp
 # Copy or clone this repository onto the router first.
+sh scripts/check-merlin-386-compat.sh
 sh scripts/install-merlin.sh
 ```
+
+Merlin 386.14_2 is expected to work on supported ARM routers with Entware,
+Merlin Addons API support, and TPROXY-capable Netfilter modules. See
+`docs/compatibility-386.14_2.md` for the detailed compatibility checklist.
 
 Edit the generated environment file:
 
