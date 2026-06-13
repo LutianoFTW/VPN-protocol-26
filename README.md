@@ -22,6 +22,8 @@ policy hash on an EVM-compatible chain.
   - verify policy hashes against an EVM storage slot via JSON-RPC,
   - gate tunnel startup when the blockchain anchor no longer matches.
 - Firewall helper for Merlin TPROXY rules.
+- Merlin WebUI page mounted into the firmware Tools menu through the
+  Asuswrt-Merlin Addons API.
 
 ## Router requirements
 
@@ -73,6 +75,11 @@ Then start the service:
 /opt/etc/init.d/S99realitychain start
 ```
 
+On supported Merlin builds, the installer also adds a **RealityChain** tab
+under the firmware **Tools** section. Use that page to edit the router tunnel
+settings, apply/restart the service, stop the tunnel, and view the last known
+service status and policy hash.
+
 ## RealityChain anchor model
 
 1. Build and review a local policy file, for example
@@ -121,3 +128,4 @@ make test
 
 The validation suite checks shell syntax and verifies that all template
 variables used by the Xray templates are documented in `examples/client.env`.
+It also validates that Merlin WebUI custom-setting keys fit firmware limits.

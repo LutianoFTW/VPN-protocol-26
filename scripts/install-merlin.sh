@@ -8,6 +8,7 @@ REPO_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 INSTALL_DIR=${REALITYCHAIN_HOME:-/jffs/addons/realitychain}
 INIT_SCRIPT=${REALITYCHAIN_INIT_SCRIPT:-/opt/etc/init.d/S99realitychain}
 MERLIN_SERVICES_START=${MERLIN_SERVICES_START:-/jffs/scripts/services-start}
+MERLIN_SERVICE_EVENT=${MERLIN_SERVICE_EVENT:-/jffs/scripts/service-event}
 XRAY_BIN=${XRAY_BIN:-/opt/bin/xray}
 XRAY_VERSION=${XRAY_VERSION:-latest}
 DRY_RUN=0
@@ -21,6 +22,7 @@ Install RealityChain for Asuswrt-Merlin routers with Entware.
 Environment overrides:
   REALITYCHAIN_HOME       Default: /jffs/addons/realitychain
   REALITYCHAIN_INIT_SCRIPT Default: /opt/etc/init.d/S99realitychain
+  MERLIN_SERVICE_EVENT    Default: /jffs/scripts/service-event
   XRAY_BIN                Default: /opt/bin/xray
   XRAY_VERSION            Default: latest
 EOF
@@ -97,12 +99,14 @@ install_xray_if_needed() {
 }
 
 install_files() {
-	run mkdir -p "$INSTALL_DIR" "$INSTALL_DIR/templates"
+	run mkdir -p "$INSTALL_DIR" "$INSTALL_DIR/templates" "$INSTALL_DIR/webui"
 	run cp "$REPO_DIR/scripts/realitychainctl" "$INSTALL_DIR/realitychainctl"
 	run cp "$REPO_DIR/scripts/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-tproxy.sh"
+	run cp "$REPO_DIR/scripts/realitychain-webui.sh" "$INSTALL_DIR/realitychain-webui.sh"
 	run cp "$REPO_DIR/templates/xray-client.json.tpl" "$INSTALL_DIR/templates/xray-client.json.tpl"
 	run cp "$REPO_DIR/templates/xray-server.json.tpl" "$INSTALL_DIR/templates/xray-server.json.tpl"
-	run chmod 0755 "$INSTALL_DIR/realitychainctl" "$INSTALL_DIR/realitychain-tproxy.sh"
+	run cp "$REPO_DIR/webui/RealityChain.asp" "$INSTALL_DIR/webui/RealityChain.asp"
+	run chmod 0755 "$INSTALL_DIR/realitychainctl" "$INSTALL_DIR/realitychain-tproxy.sh" "$INSTALL_DIR/realitychain-webui.sh"
 
 	if [ ! -f "$INSTALL_DIR/client.env" ]; then
 		run cp "$REPO_DIR/examples/client.env" "$INSTALL_DIR/client.env"
@@ -189,10 +193,57 @@ install_merlin_hook() {
 		cat >>"$MERLIN_SERVICES_START" <<EOF
 
 # RealityChain autostart
+if [ -x "$INSTALL_DIR/realitychain-webui.sh" ]; then
+	"$INSTALL_DIR/realitychain-webui.sh" mount >/dev/null 2>&1 || true
+fi
+
 if [ -x "$INIT_SCRIPT" ]; then
-	"$INIT_SCRIPT" start
+	realitychain_enabled=1
+	if [ -f /usr/sbin/helper.sh ]; then
+		. /usr/sbin/helper.sh
+		realitychain_enabled=\$(am_settings_get rch_enabled 2>/dev/null || echo 1)
+		[ -n "\$realitychain_enabled" ] || realitychain_enabled=1
+	fi
+	[ "\$realitychain_enabled" = "0" ] || "$INIT_SCRIPT" start
 fi
 EOF
+	fi
+}
+
+install_service_event_hook() {
+	hook_dir=$(dirname -- "$MERLIN_SERVICE_EVENT")
+	run mkdir -p "$hook_dir"
+
+	if [ "$DRY_RUN" -eq 1 ]; then
+		log "[dry-run] would update $MERLIN_SERVICE_EVENT"
+		return
+	fi
+
+	if [ ! -f "$MERLIN_SERVICE_EVENT" ]; then
+		touch "$MERLIN_SERVICE_EVENT"
+		chmod 0755 "$MERLIN_SERVICE_EVENT"
+	fi
+
+	if ! grep -q 'RealityChain service-event' "$MERLIN_SERVICE_EVENT"; then
+		cat >>"$MERLIN_SERVICE_EVENT" <<EOF
+
+# RealityChain service-event
+if [ -x "$INSTALL_DIR/realitychain-webui.sh" ]; then
+	"$INSTALL_DIR/realitychain-webui.sh" service-event "\$@"
+fi
+EOF
+	fi
+}
+
+install_webui() {
+	if [ "$DRY_RUN" -eq 1 ]; then
+		log "[dry-run] would import settings and mount Merlin WebUI page"
+		return
+	fi
+
+	if [ -x "$INSTALL_DIR/realitychain-webui.sh" ]; then
+		"$INSTALL_DIR/realitychain-webui.sh" import-env || true
+		"$INSTALL_DIR/realitychain-webui.sh" mount || true
 	fi
 }
 
@@ -223,6 +274,8 @@ install_xray_if_needed
 install_files
 write_init_script
 install_merlin_hook
+install_service_event_hook
+install_webui
 
 log "RealityChain installed in $INSTALL_DIR"
 log "Edit $INSTALL_DIR/client.env, then run: $INIT_SCRIPT start"

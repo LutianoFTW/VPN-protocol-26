@@ -50,9 +50,30 @@ check_policy_hash() {
 	printf '%s' "$hash" | grep -Eq '^0x[0-9a-f]{64}$' || fail "invalid policy hash format: $hash"
 }
 
+check_webui_settings() {
+	[ -f "$ROOT_DIR/webui/RealityChain.asp" ] || fail "missing Merlin WebUI page"
+
+	keys=$(
+		{
+			sed -n 's/.*custom_settings\.\([A-Za-z0-9_-][A-Za-z0-9_-]*\).*/\1/p' "$ROOT_DIR/webui/RealityChain.asp"
+			sed -n 's/.*am_settings_[gs]et \([A-Za-z0-9_-][A-Za-z0-9_-]*\).*/\1/p' "$ROOT_DIR/scripts/realitychain-webui.sh"
+			sed -n 's/.*setting_[a-z_]* \([A-Za-z0-9_-][A-Za-z0-9_-]*\).*/\1/p' "$ROOT_DIR/scripts/realitychain-webui.sh"
+		} | sort -u
+	)
+
+	for key in $keys; do
+		case "$key" in
+			rch_*)
+				[ "${#key}" -le 29 ] || fail "Merlin custom setting key too long: $key"
+				;;
+		esac
+	done
+}
+
 check_shell_syntax
 check_template_variables_documented
 check_rendered_json
 check_policy_hash
+check_webui_settings
 
 printf 'validation passed\n'
