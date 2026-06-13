@@ -1,0 +1,21 @@
+{
+  "schema": "realitychain.policy.v1",
+  "name": "default-router-tunnel",
+  "description": "Authorization policy hash anchored on-chain before router tunnel startup.",
+  "tunnel": {
+    "transport": "xray-vless-reality",
+    "server": "vpn.example.net",
+    "port": 443,
+    "reality_server_name": "www.microsoft.com",
+    "short_id": "0123456789abcdef"
+  },
+  "router": {
+    "firmware": "asuswrt-merlin",
+    "lan_interface": "br0",
+    "transparent_proxy": true
+  },
+  "controls": {
+    "require_anchor_match": true,
+    "revocation": "replace the on-chain storage slot with a new policy hash or zero hash"
+  }
+}

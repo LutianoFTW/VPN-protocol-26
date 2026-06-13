@@ -1,0 +1,200 @@
+#!/bin/sh
+set -eu
+
+PROGRAM_NAME=${0##*/}
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DEFAULT_HOME=/jffs/addons/realitychain
+
+REALITYCHAIN_HOME=${REALITYCHAIN_HOME:-$DEFAULT_HOME}
+TEMPLATE_DIR=${REALITYCHAIN_TEMPLATE_DIR:-$SCRIPT_DIR/../templates}
+CONFIG_DIR=${REALITYCHAIN_CONFIG_DIR:-$REALITYCHAIN_HOME}
+DEFAULT_CLIENT_ENV=$CONFIG_DIR/client.env
+DEFAULT_POLICY=$CONFIG_DIR/policy.json
+DEFAULT_CLIENT_OUT=$CONFIG_DIR/xray-client.json
+DEFAULT_SERVER_OUT=$CONFIG_DIR/xray-server.json
+
+usage() {
+	cat <<EOF
+Usage: $PROGRAM_NAME <command> [args]
+
+Commands:
+  render-client [env-file] [output-json]
+      Render the Xray VLESS/REALITY client config.
+
+  render-server [env-file] [output-json]
+      Render the reference Xray VLESS/REALITY server config.
+
+  policy-hash [policy-json]
+      Print 0x-prefixed SHA-256 hash for a policy file.
+
+  verify-anchor [policy-json] [env-file]
+      Compare the local policy hash with the trusted on-chain storage slot.
+
+  guarded-render [policy-json] [env-file] [output-json]
+      Verify the chain anchor when configured, then render the client config.
+
+  help
+      Show this help.
+EOF
+}
+
+die() {
+	printf '%s: %s\n' "$PROGRAM_NAME" "$*" >&2
+	exit 1
+}
+
+need_cmd() {
+	command -v "$1" >/dev/null 2>&1 || die "missing required command: $1"
+}
+
+load_env() {
+	env_file=$1
+	[ -f "$env_file" ] || die "environment file not found: $env_file"
+	# shellcheck disable=SC1090
+	. "$env_file"
+}
+
+require_vars() {
+	for var_name in "$@"; do
+		eval "value=\${$var_name:-}"
+		[ -n "$value" ] || die "missing required setting: $var_name"
+	done
+}
+
+lower_hex() {
+	printf '%s' "$1" | tr 'A-F' 'a-f'
+}
+
+json_rpc_storage_result() {
+	rpc_url=$1
+	contract=$2
+	slot=$3
+
+	need_cmd curl
+	response=$(
+		curl -fsS \
+			-H 'content-type: application/json' \
+			--data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getStorageAt\",\"params\":[\"$contract\",\"$slot\",\"latest\"]}" \
+			"$rpc_url"
+	) || die "failed to query blockchain RPC endpoint"
+
+	result=$(printf '%s' "$response" | sed -n 's/.*"result"[[:space:]]*:[[:space:]]*"\(0x[0-9a-fA-F]*\)".*/\1/p')
+	[ -n "$result" ] || die "RPC response did not include an eth_getStorageAt result"
+	printf '%s\n' "$result"
+}
+
+policy_hash() {
+	policy_file=${1:-$DEFAULT_POLICY}
+	[ -f "$policy_file" ] || die "policy file not found: $policy_file"
+
+	if command -v sha256sum >/dev/null 2>&1; then
+		hash=$(sha256sum "$policy_file" | awk '{print $1}')
+	elif command -v openssl >/dev/null 2>&1; then
+		hash=$(openssl dgst -sha256 "$policy_file" | awk '{print $NF}')
+	else
+		die "missing sha256sum or openssl"
+	fi
+
+	printf '0x%s\n' "$hash"
+}
+
+sed_escape() {
+	printf '%s' "$1" | sed 's/[\/&]/\\&/g'
+}
+
+render_template() {
+	template_file=$1
+	output_file=$2
+
+	[ -f "$template_file" ] || die "template not found: $template_file"
+	output_dir=$(dirname -- "$output_file")
+	[ -d "$output_dir" ] || mkdir -p "$output_dir"
+
+	sed \
+		-e "s/{{SERVER_ADDRESS}}/$(sed_escape "${SERVER_ADDRESS}")/g" \
+		-e "s/{{SERVER_PORT}}/$(sed_escape "${SERVER_PORT}")/g" \
+		-e "s/{{VLESS_UUID}}/$(sed_escape "${VLESS_UUID}")/g" \
+		-e "s/{{REALITY_PUBLIC_KEY}}/$(sed_escape "${REALITY_PUBLIC_KEY:-}")/g" \
+		-e "s/{{REALITY_PRIVATE_KEY}}/$(sed_escape "${REALITY_PRIVATE_KEY:-}")/g" \
+		-e "s/{{REALITY_SHORT_ID}}/$(sed_escape "${REALITY_SHORT_ID}")/g" \
+		-e "s/{{REALITY_SERVER_NAME}}/$(sed_escape "${REALITY_SERVER_NAME}")/g" \
+		-e "s/{{REALITY_DEST}}/$(sed_escape "${REALITY_DEST:-${REALITY_SERVER_NAME}:443}")/g" \
+		-e "s/{{REALITY_FINGERPRINT}}/$(sed_escape "${REALITY_FINGERPRINT:-chrome}")/g" \
+		-e "s/{{LOCAL_TPROXY_PORT}}/$(sed_escape "${LOCAL_TPROXY_PORT:-12345}")/g" \
+		"$template_file" >"$output_file"
+}
+
+render_client() {
+	env_file=${1:-$DEFAULT_CLIENT_ENV}
+	output_file=${2:-$DEFAULT_CLIENT_OUT}
+	load_env "$env_file"
+	require_vars SERVER_ADDRESS SERVER_PORT VLESS_UUID REALITY_PUBLIC_KEY REALITY_SHORT_ID REALITY_SERVER_NAME
+	render_template "$TEMPLATE_DIR/xray-client.json.tpl" "$output_file"
+	printf 'rendered client config: %s\n' "$output_file"
+}
+
+render_server() {
+	env_file=${1:-$DEFAULT_CLIENT_ENV}
+	output_file=${2:-$DEFAULT_SERVER_OUT}
+	load_env "$env_file"
+	require_vars SERVER_PORT VLESS_UUID REALITY_PRIVATE_KEY REALITY_SHORT_ID REALITY_SERVER_NAME
+	SERVER_ADDRESS=${SERVER_ADDRESS:-0.0.0.0}
+	render_template "$TEMPLATE_DIR/xray-server.json.tpl" "$output_file"
+	printf 'rendered server config: %s\n' "$output_file"
+}
+
+verify_anchor() {
+	policy_file=${1:-$DEFAULT_POLICY}
+	env_file=${2:-$DEFAULT_CLIENT_ENV}
+	load_env "$env_file"
+	require_vars ANCHOR_RPC_URL ANCHOR_CONTRACT ANCHOR_STORAGE_SLOT
+
+	expected=$(lower_hex "$(policy_hash "$policy_file")")
+	observed=$(lower_hex "$(json_rpc_storage_result "$ANCHOR_RPC_URL" "$ANCHOR_CONTRACT" "$ANCHOR_STORAGE_SLOT")")
+
+	[ "$expected" = "$observed" ] || die "policy hash mismatch: local=$expected chain=$observed"
+	printf 'policy anchor verified: %s\n' "$expected"
+}
+
+guarded_render() {
+	policy_file=${1:-${POLICY_FILE:-$DEFAULT_POLICY}}
+	env_file=${2:-$DEFAULT_CLIENT_ENV}
+	output_file=${3:-$DEFAULT_CLIENT_OUT}
+	load_env "$env_file"
+
+	if [ -n "${ANCHOR_RPC_URL:-}" ] || [ -n "${ANCHOR_CONTRACT:-}" ] || [ -n "${ANCHOR_STORAGE_SLOT:-}" ]; then
+		verify_anchor "${POLICY_FILE:-$policy_file}" "$env_file"
+	else
+		printf 'blockchain anchor not configured; rendering without chain gate\n' >&2
+	fi
+
+	render_client "$env_file" "$output_file"
+}
+
+command_name=${1:-help}
+shift || true
+
+case "$command_name" in
+	render-client)
+		render_client "$@"
+		;;
+	render-server)
+		render_server "$@"
+		;;
+	policy-hash)
+		policy_hash "${1:-$DEFAULT_POLICY}"
+		;;
+	verify-anchor)
+		verify_anchor "${1:-$DEFAULT_POLICY}" "${2:-$DEFAULT_CLIENT_ENV}"
+		;;
+	guarded-render)
+		guarded_render "${1:-${POLICY_FILE:-$DEFAULT_POLICY}}" "${2:-$DEFAULT_CLIENT_ENV}" "${3:-$DEFAULT_CLIENT_OUT}"
+		;;
+	help|-h|--help)
+		usage
+		;;
+	*)
+		usage >&2
+		exit 2
+		;;
+esac
