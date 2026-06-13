@@ -112,6 +112,7 @@ render_template() {
 
 	sed \
 		-e "s/{{SERVER_ADDRESS}}/$(sed_escape "${SERVER_ADDRESS}")/g" \
+		-e "s/{{SERVER_LISTEN}}/$(sed_escape "${SERVER_LISTEN:-0.0.0.0}")/g" \
 		-e "s/{{SERVER_PORT}}/$(sed_escape "${SERVER_PORT}")/g" \
 		-e "s/{{VLESS_UUID}}/$(sed_escape "${VLESS_UUID}")/g" \
 		-e "s/{{REALITY_PUBLIC_KEY}}/$(sed_escape "${REALITY_PUBLIC_KEY:-}")/g" \
@@ -138,7 +139,8 @@ render_server() {
 	output_file=${2:-$DEFAULT_SERVER_OUT}
 	load_env "$env_file"
 	require_vars SERVER_PORT VLESS_UUID REALITY_PRIVATE_KEY REALITY_SHORT_ID REALITY_SERVER_NAME
-	SERVER_ADDRESS=${SERVER_ADDRESS:-0.0.0.0}
+	SERVER_ADDRESS=${SERVER_ADDRESS:-127.0.0.1}
+	SERVER_LISTEN=${SERVER_LISTEN:-0.0.0.0}
 	render_template "$TEMPLATE_DIR/xray-server.json.tpl" "$output_file"
 	printf 'rendered server config: %s\n' "$output_file"
 }
@@ -147,6 +149,7 @@ verify_anchor() {
 	policy_file=${1:-$DEFAULT_POLICY}
 	env_file=${2:-$DEFAULT_CLIENT_ENV}
 	load_env "$env_file"
+	ANCHOR_STORAGE_SLOT=${ANCHOR_STORAGE_SLOT:-0x0}
 	require_vars ANCHOR_RPC_URL ANCHOR_CONTRACT ANCHOR_STORAGE_SLOT
 
 	expected=$(lower_hex "$(policy_hash "$policy_file")")
@@ -162,7 +165,8 @@ guarded_render() {
 	output_file=${3:-$DEFAULT_CLIENT_OUT}
 	load_env "$env_file"
 
-	if [ -n "${ANCHOR_RPC_URL:-}" ] || [ -n "${ANCHOR_CONTRACT:-}" ] || [ -n "${ANCHOR_STORAGE_SLOT:-}" ]; then
+	if [ -n "${ANCHOR_RPC_URL:-}" ] || [ -n "${ANCHOR_CONTRACT:-}" ]; then
+		ANCHOR_STORAGE_SLOT=${ANCHOR_STORAGE_SLOT:-0x0}
 		verify_anchor "${POLICY_FILE:-$policy_file}" "$env_file"
 	else
 		printf 'blockchain anchor not configured; rendering without chain gate\n' >&2

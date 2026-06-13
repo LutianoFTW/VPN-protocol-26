@@ -88,7 +88,8 @@ install_xray_if_needed() {
 	if [ "$DRY_RUN" -eq 0 ]; then
 		curl -fL "$url" -o "$tmp_dir/xray.zip"
 		unzip -o "$tmp_dir/xray.zip" xray -d "$tmp_dir"
-		install -m 0755 "$tmp_dir/xray" "$XRAY_BIN"
+		cp "$tmp_dir/xray" "$XRAY_BIN"
+		chmod 0755 "$XRAY_BIN"
 		rm -rf "$tmp_dir"
 	else
 		log "[dry-run] would download and install $asset"

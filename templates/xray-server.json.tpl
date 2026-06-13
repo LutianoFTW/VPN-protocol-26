@@ -5,7 +5,7 @@
   "inbounds": [
     {
       "tag": "vless-reality",
-      "listen": "{{SERVER_ADDRESS}}",
+      "listen": "{{SERVER_LISTEN}}",
       "port": {{SERVER_PORT}},
       "protocol": "vless",
       "settings": {
