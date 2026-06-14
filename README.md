@@ -48,13 +48,32 @@ On the Asuswrt-Merlin router:
 ```sh
 cd /tmp
 # Copy or clone this repository onto the router first.
-sh scripts/check-merlin-386-compat.sh
-sh scripts/install-merlin.sh
+sh INSTALL-ASUS-MERLIN-386.14_2.sh
 ```
 
 Merlin 386.14_2 is expected to work on supported ARM routers with Entware,
 Merlin Addons API support, and TPROXY-capable Netfilter modules. See
 `docs/compatibility-386.14_2.md` for the detailed compatibility checklist.
+
+The all-in-one installer:
+
+- checks Merlin 386.14_2 compatibility,
+- enables Merlin custom scripts with `jffs2_scripts=1`,
+- prepares `/jffs/scripts` and `/jffs/addons`,
+- installs every RealityChain function,
+- mounts the Merlin WebUI page when `am_addons` is available,
+- configures TPROXY, kill switch, watchdog, blockchain policy gate, client
+  renderer, and server renderer,
+- applies safe defaults for Merlin 386.14_2,
+- leaves tunnel autostart disabled until real Client setup credentials are
+  entered.
+
+Advanced/manual install remains available:
+
+```sh
+sh scripts/check-merlin-386-compat.sh
+sh scripts/install-merlin.sh
+```
 
 Edit the generated environment file:
 

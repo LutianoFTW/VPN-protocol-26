@@ -18,6 +18,7 @@ check_shell_syntax() {
 	for script in "$ROOT_DIR"/scripts/*.sh "$ROOT_DIR"/scripts/realitychainctl; do
 		sh -n "$script" || fail "shell syntax failed for $script"
 	done
+	sh -n "$ROOT_DIR/INSTALL-ASUS-MERLIN-386.14_2.sh" || fail "shell syntax failed for root Merlin installer"
 }
 
 check_template_variables_documented() {
@@ -88,11 +89,19 @@ check_xray_arch_mapping() {
 	grep -q "arm64-v8a" "$ROOT_DIR/scripts/check-merlin-386-compat.sh" || fail "compat checker missing Xray ARM64 asset mapping"
 }
 
+check_full_installer_docs() {
+	[ -x "$ROOT_DIR/INSTALL-ASUS-MERLIN-386.14_2.sh" ] || fail "root Merlin 386 installer is not executable"
+	[ -x "$ROOT_DIR/scripts/install-asus-merlin-386.14_2-full.sh" ] || fail "full Merlin 386 installer is not executable"
+	grep -q "INSTALL-ASUS-MERLIN-386.14_2.sh" "$ROOT_DIR/README.md" || fail "README does not mention full Merlin installer"
+	grep -q "jffs2_scripts=1" "$ROOT_DIR/docs/asus-merlin-386.14_2-installation.md" || fail "Merlin install doc missing jffs2_scripts setting"
+}
+
 check_shell_syntax
 check_template_variables_documented
 check_rendered_json
 check_policy_hash
 check_webui_settings
 check_xray_arch_mapping
+check_full_installer_docs
 
 printf 'validation passed\n'
