@@ -125,24 +125,151 @@ recovery.
 The blockchain does not carry tunnel traffic or replace REALITY keys. It adds
 an independently auditable control plane for tunnel authorization.
 
-## Server configuration
+## Server setup for usage in Russia
 
-Render the server template on the VPS or server running Xray:
+This profile is designed for a Merlin router client connecting to your own
+Xray server while using a Russian/VK-oriented REALITY camouflage profile:
 
 ```sh
-cp examples/client.env server.env
-vi server.env
-scripts/realitychainctl render-server server.env xray-server.json
+REALITY_SERVER_NAME=vk.com
+REALITY_DEST=vk.com:443
+REALITY_FINGERPRINT=chrome
 ```
 
-Generate REALITY keys with Xray:
+`vk.com` is not your VPN server. It is the REALITY TLS camouflage destination.
+`SERVER_ADDRESS` must be the DNS name or IP address of the VPS/server you
+control.
+
+### 1. Prepare the server
+
+Use a Linux VPS that can run Xray and accept inbound TCP/443. For a router
+client physically used in Russia, the usual deployment is:
+
+- a VPS outside Russia when the goal is external Internet access,
+- a VPS inside or near Russia only when the goal is low-latency access to
+  Russian-region services.
+
+Install Xray on the VPS using the official Xray-core release or your operating
+system's package method. Then generate a VLESS UUID and REALITY keypair:
 
 ```sh
+xray uuid
 xray x25519
 ```
 
-Use the private key in the server config and the public key in the router
-client config.
+Save:
+
+- UUID -> `VLESS_UUID`
+- private key -> `REALITY_PRIVATE_KEY` on the server only
+- public key -> `REALITY_PUBLIC_KEY` on the Merlin router client
+
+### 2. Create the server environment file
+
+On your workstation, router, or VPS:
+
+```sh
+cp examples/client-ru-vk.env server.env
+vi server.env
+```
+
+Set at least:
+
+```sh
+SERVER_ADDRESS=your.vps.example.com
+SERVER_PORT=443
+SERVER_LISTEN=0.0.0.0
+SERVER_LISTEN_PORT=443
+VLESS_UUID=<uuid from xray uuid>
+REALITY_PRIVATE_KEY=<private key from xray x25519>
+REALITY_PUBLIC_KEY=<public key from xray x25519>
+REALITY_SHORT_ID=<8 to 16 hex chars, for example 0123456789abcdef>
+REALITY_SERVER_NAME=vk.com
+REALITY_DEST=vk.com:443
+REALITY_FINGERPRINT=chrome
+```
+
+Keep `REALITY_PRIVATE_KEY` off the router when possible. The router only needs
+the public key.
+
+### 3. Render and install the server config
+
+Render the Xray server config:
+
+```sh
+scripts/realitychainctl render-server server.env xray-server.json
+```
+
+Copy `xray-server.json` to the VPS and start Xray with it. A simple systemd
+unit can use:
+
+```sh
+xray run -config /etc/xray/xray-server.json
+```
+
+Open TCP/443 on the VPS firewall/security group. REALITY/VLESS Vision in this
+profile uses TCP.
+
+### 4. Configure the Merlin client
+
+On the Asuswrt-Merlin router, use the WebUI **Client setup** section or edit:
+
+```sh
+vi /jffs/addons/realitychain/client.env
+```
+
+Copy these values from `server.env`:
+
+```sh
+SERVER_ADDRESS=your.vps.example.com
+SERVER_PORT=443
+VLESS_UUID=<same UUID>
+REALITY_PUBLIC_KEY=<public key>
+REALITY_SHORT_ID=<same short ID>
+REALITY_SERVER_NAME=vk.com
+REALITY_DEST=vk.com:443
+REALITY_FINGERPRINT=chrome
+```
+
+Do not put `REALITY_PRIVATE_KEY` in the client section. It is only needed by
+the server config renderer.
+
+### 5. Optional: render server config from Merlin UI
+
+The Merlin **RealityChain** tab has separate sections:
+
+- **Client setup** configures the router outbound tunnel.
+- **Server setup** configures and renders `xray-server.json`.
+
+If you fill the server section, click **Render server config**. The generated
+file is written to:
+
+```sh
+/jffs/addons/realitychain/xray-server.json
+```
+
+Copy that file to the VPS and restart Xray there.
+
+### 6. Smoke test
+
+On the VPS:
+
+```sh
+xray run -test -config /etc/xray/xray-server.json
+```
+
+On the Merlin router:
+
+```sh
+/opt/etc/init.d/S99realitychain restart
+ps | grep '[x]ray'
+/jffs/addons/realitychain/realitychain-killswitch.sh status /jffs/addons/realitychain/client.env
+```
+
+Expected result:
+
+- Xray starts on the VPS without config errors.
+- Xray starts on the Merlin router.
+- The kill switch reports `clear` while the tunnel process is running.
 
 ## Development
 
