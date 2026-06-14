@@ -45,6 +45,10 @@ function initial() {
 	setField("realitychain_reality_server_name", setting("rch_reality_server_name", "vk.com"));
 	setField("realitychain_reality_dest", setting("rch_reality_dest", "vk.com:443"));
 	setField("realitychain_reality_fingerprint", setting("rch_reality_fingerprint", "chrome"));
+	setField("realitychain_server_listen", setting("rch_srv_listen", "0.0.0.0"));
+	setField("realitychain_server_listen_port", setting("rch_srv_port", "443"));
+	setField("realitychain_reality_private_key", setting("rch_reality_private_key", ""));
+	setField("realitychain_server_config", setting("rch_srv_config", "/jffs/addons/realitychain/xray-server.json"));
 	document.getElementById("realitychain_killswitch_enabled").checked = setting("rch_ks_enabled", "1") !== "0";
 	setField("realitychain_killswitch_interval", setting("rch_ks_interval", "10"));
 	setField("realitychain_anchor_rpc_url", setting("rch_anchor_rpc_url", ""));
@@ -56,6 +60,7 @@ function initial() {
 	document.getElementById("realitychain_anchor_status").innerHTML = setting("rch_anchor_status", "not checked");
 	document.getElementById("realitychain_policy_hash").innerHTML = setting("rch_policy_hash", "not calculated");
 	document.getElementById("realitychain_killswitch_state").innerHTML = setting("rch_ks_state", "unknown");
+	document.getElementById("realitychain_server_status").innerHTML = setting("rch_srv_status", "not rendered");
 	document.getElementById("realitychain_updated_at").innerHTML = setting("rch_updated_at", "never");
 }
 
@@ -74,6 +79,10 @@ function storeSettings() {
 	custom_settings.rch_reality_server_name = fieldValue("realitychain_reality_server_name");
 	custom_settings.rch_reality_dest = fieldValue("realitychain_reality_dest");
 	custom_settings.rch_reality_fingerprint = fieldValue("realitychain_reality_fingerprint");
+	custom_settings.rch_srv_listen = fieldValue("realitychain_server_listen");
+	custom_settings.rch_srv_port = fieldValue("realitychain_server_listen_port");
+	custom_settings.rch_reality_private_key = fieldValue("realitychain_reality_private_key");
+	custom_settings.rch_srv_config = fieldValue("realitychain_server_config");
 	custom_settings.rch_ks_enabled = document.getElementById("realitychain_killswitch_enabled").checked ? "1" : "0";
 	custom_settings.rch_ks_interval = fieldValue("realitychain_killswitch_interval");
 	custom_settings.rch_anchor_rpc_url = fieldValue("realitychain_anchor_rpc_url");
@@ -156,8 +165,96 @@ function applySettings(actionScript) {
 		<td><span id="realitychain_killswitch_state">unknown</span></td>
 	</tr>
 	<tr>
+		<th>Server config</th>
+		<td><span id="realitychain_server_status">not rendered</span></td>
+	</tr>
+	<tr>
 		<th>Last update</th>
 		<td><span id="realitychain_updated_at">never</span></td>
+	</tr>
+</table>
+
+<div style="margin-top:12px;"></div>
+
+<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
+	<thead>
+	<tr>
+		<td colspan="2">Client setup - router outbound tunnel</td>
+	</tr>
+	</thead>
+	<tr>
+		<th>Enable at boot</th>
+		<td><input type="checkbox" id="realitychain_enabled" /></td>
+	</tr>
+	<tr>
+		<th>Remote server address</th>
+		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_server_address" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>Remote server port</th>
+		<td><input type="text" maxlength="5" class="input_6_table" id="realitychain_server_port" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>VLESS UUID</th>
+		<td><input type="text" maxlength="36" class="input_32_table" id="realitychain_vless_uuid" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>REALITY public key</th>
+		<td><input type="text" maxlength="128" class="input_32_table" id="realitychain_reality_public_key" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>REALITY short ID</th>
+		<td><input type="text" maxlength="32" class="input_32_table" id="realitychain_reality_short_id" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>REALITY server name</th>
+		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_reality_server_name" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>REALITY fingerprint</th>
+		<td><input type="text" maxlength="32" class="input_15_table" id="realitychain_reality_fingerprint" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+</table>
+
+<div style="margin-top:12px;"></div>
+
+<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
+	<thead>
+	<tr>
+		<td colspan="2">Server setup - Xray VLESS REALITY inbound</td>
+	</tr>
+	</thead>
+	<tr>
+		<th>Listen address</th>
+		<td><input type="text" maxlength="64" class="input_20_table" id="realitychain_server_listen" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>Listen port</th>
+		<td><input type="text" maxlength="5" class="input_6_table" id="realitychain_server_listen_port" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>VLESS UUID</th>
+		<td>Uses the client VLESS UUID above.</td>
+	</tr>
+	<tr>
+		<th>REALITY private key</th>
+		<td><input type="text" maxlength="128" class="input_32_table" id="realitychain_reality_private_key" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>REALITY short ID</th>
+		<td>Uses the client REALITY short ID above.</td>
+	</tr>
+	<tr>
+		<th>REALITY server name</th>
+		<td>Uses the client REALITY server name above.</td>
+	</tr>
+	<tr>
+		<th>REALITY destination</th>
+		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_reality_dest" autocorrect="off" autocapitalize="off" /></td>
+	</tr>
+	<tr>
+		<th>Server config output</th>
+		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_server_config" autocorrect="off" autocapitalize="off" /></td>
 	</tr>
 </table>
 
@@ -179,52 +276,6 @@ function applySettings(actionScript) {
 	<tr>
 		<th>Watch interval</th>
 		<td><input type="text" maxlength="5" class="input_6_table" id="realitychain_killswitch_interval" autocorrect="off" autocapitalize="off" /> seconds</td>
-	</tr>
-</table>
-
-<div style="margin-top:12px;"></div>
-
-<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
-	<thead>
-	<tr>
-		<td colspan="2">Tunnel settings</td>
-	</tr>
-	</thead>
-	<tr>
-		<th>Enable at boot</th>
-		<td><input type="checkbox" id="realitychain_enabled" /></td>
-	</tr>
-	<tr>
-		<th>Server address</th>
-		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_server_address" autocorrect="off" autocapitalize="off" /></td>
-	</tr>
-	<tr>
-		<th>Server port</th>
-		<td><input type="text" maxlength="5" class="input_6_table" id="realitychain_server_port" autocorrect="off" autocapitalize="off" /></td>
-	</tr>
-	<tr>
-		<th>VLESS UUID</th>
-		<td><input type="text" maxlength="36" class="input_32_table" id="realitychain_vless_uuid" autocorrect="off" autocapitalize="off" /></td>
-	</tr>
-	<tr>
-		<th>REALITY public key</th>
-		<td><input type="text" maxlength="128" class="input_32_table" id="realitychain_reality_public_key" autocorrect="off" autocapitalize="off" /></td>
-	</tr>
-	<tr>
-		<th>REALITY short ID</th>
-		<td><input type="text" maxlength="32" class="input_32_table" id="realitychain_reality_short_id" autocorrect="off" autocapitalize="off" /></td>
-	</tr>
-	<tr>
-		<th>REALITY server name</th>
-		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_reality_server_name" autocorrect="off" autocapitalize="off" /></td>
-	</tr>
-	<tr>
-		<th>REALITY destination</th>
-		<td><input type="text" maxlength="255" class="input_32_table" id="realitychain_reality_dest" autocorrect="off" autocapitalize="off" /></td>
-	</tr>
-	<tr>
-		<th>REALITY fingerprint</th>
-		<td><input type="text" maxlength="32" class="input_15_table" id="realitychain_reality_fingerprint" autocorrect="off" autocapitalize="off" /></td>
 	</tr>
 </table>
 
@@ -256,6 +307,7 @@ function applySettings(actionScript) {
 
 <div class="apply_gen">
 	<input type="button" class="button_gen" onclick="applySettings('restart_realitychain');" value="Apply and restart" />
+	<input type="button" class="button_gen" onclick="applySettings('restart_realitychainsrv');" value="Render server config" />
 	<input type="button" class="button_gen" onclick="applySettings('stop_realitychain');" value="Stop tunnel" />
 	<input type="button" class="button_gen" onclick="applySettings('start_realitychainks');" value="Engage kill switch" />
 	<input type="button" class="button_gen" onclick="applySettings('stop_realitychainks');" value="Clear kill switch" />

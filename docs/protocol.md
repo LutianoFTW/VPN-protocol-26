@@ -26,6 +26,7 @@ The router runs Xray with:
 
 The server runs a matching VLESS inbound with REALITY:
 
+- `SERVER_LISTEN` bind address and `SERVER_LISTEN_PORT` listen port,
 - generated X25519 private key,
 - matching `shortIds`,
 - a realistic `dest` target such as `vk.com:443`,

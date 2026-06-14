@@ -26,9 +26,15 @@ runs from the CLI, but the WebUI tab is skipped.
 The page exposes:
 
 - enable/disable at boot,
-- server address and port,
-- VLESS UUID,
-- REALITY public key, short ID, server name, destination, and fingerprint,
+- **Client setup** for the router outbound tunnel:
+  - remote server address and port,
+  - VLESS UUID,
+  - REALITY public key, short ID, server name, and fingerprint,
+- **Server setup** for rendering the Xray inbound config:
+  - listen address and port,
+  - REALITY private key,
+  - REALITY destination,
+  - server config output path,
 - optional blockchain RPC URL, contract address, and storage slot,
 - policy file path,
 - automatic kill-switch enablement and watchdog interval,
@@ -42,6 +48,13 @@ Clicking **Apply and restart** submits Merlin custom settings and triggers:
 
 ```text
 restart_realitychain
+```
+
+Clicking **Render server config** writes the server-side Xray config to the
+configured output path and triggers:
+
+```text
+restart_realitychainsrv
 ```
 
 Clicking **Stop tunnel** triggers:
@@ -79,10 +92,15 @@ key length. RealityChain uses the `rch_` namespace:
 - `rch_server_port`
 - `rch_vless_uuid`
 - `rch_reality_public_key`
+- `rch_reality_private_key`
 - `rch_reality_short_id`
 - `rch_reality_server_name`
 - `rch_reality_dest`
 - `rch_reality_fingerprint`
+- `rch_srv_listen`
+- `rch_srv_port`
+- `rch_srv_config`
+- `rch_srv_status`
 - `rch_ks_enabled`
 - `rch_ks_interval`
 - `rch_ks_state`

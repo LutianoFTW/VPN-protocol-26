@@ -113,6 +113,7 @@ render_template() {
 	sed \
 		-e "s/{{SERVER_ADDRESS}}/$(sed_escape "${SERVER_ADDRESS}")/g" \
 		-e "s/{{SERVER_LISTEN}}/$(sed_escape "${SERVER_LISTEN:-0.0.0.0}")/g" \
+		-e "s/{{SERVER_LISTEN_PORT}}/$(sed_escape "${SERVER_LISTEN_PORT:-${SERVER_PORT}}")/g" \
 		-e "s/{{SERVER_PORT}}/$(sed_escape "${SERVER_PORT}")/g" \
 		-e "s/{{VLESS_UUID}}/$(sed_escape "${VLESS_UUID}")/g" \
 		-e "s/{{REALITY_PUBLIC_KEY}}/$(sed_escape "${REALITY_PUBLIC_KEY:-}")/g" \
@@ -141,6 +142,7 @@ render_server() {
 	require_vars SERVER_PORT VLESS_UUID REALITY_PRIVATE_KEY REALITY_SHORT_ID REALITY_SERVER_NAME
 	SERVER_ADDRESS=${SERVER_ADDRESS:-127.0.0.1}
 	SERVER_LISTEN=${SERVER_LISTEN:-0.0.0.0}
+	SERVER_LISTEN_PORT=${SERVER_LISTEN_PORT:-$SERVER_PORT}
 	render_template "$TEMPLATE_DIR/xray-server.json.tpl" "$output_file"
 	printf 'rendered server config: %s\n' "$output_file"
 }

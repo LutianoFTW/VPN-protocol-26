@@ -6,7 +6,7 @@
     {
       "tag": "vless-reality",
       "listen": "{{SERVER_LISTEN}}",
-      "port": {{SERVER_PORT}},
+      "port": {{SERVER_LISTEN_PORT}},
       "protocol": "vless",
       "settings": {
         "clients": [

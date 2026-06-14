@@ -99,9 +99,12 @@ Then start the service:
 On supported Merlin builds, the installer also adds a **RealityChain** tab
 under the firmware **Tools** section. Use that page to edit the router tunnel
 settings, apply/restart the service, stop the tunnel, and view the last known
-service status and policy hash. The page also includes kill-switch controls
-for enabling automatic protection, manually engaging the block, and clearing it
-after recovery.
+service status and policy hash. The page has separate **Client setup** and
+**Server setup** sections: client settings drive the router outbound tunnel,
+while server settings render an `xray-server.json` file that can be copied to
+the VPS/server. The page also includes kill-switch controls for enabling
+automatic protection, manually engaging the block, and clearing it after
+recovery.
 
 ## RealityChain anchor model
 

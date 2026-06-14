@@ -72,6 +72,15 @@ check_webui_settings() {
 				;;
 		esac
 	done
+
+	ids=$(sed -n 's/.*id="\([^"]*\)".*/\1/p' "$ROOT_DIR/webui/RealityChain.asp" | sort)
+	duplicates=$(printf '%s\n' "$ids" | uniq -d)
+	[ -z "$duplicates" ] || fail "duplicate WebUI element id(s): $duplicates"
+
+	grep -q 'Client setup - router outbound tunnel' "$ROOT_DIR/webui/RealityChain.asp" || fail "WebUI missing client setup section"
+	grep -q 'Server setup - Xray VLESS REALITY inbound' "$ROOT_DIR/webui/RealityChain.asp" || fail "WebUI missing server setup section"
+	grep -q "restart_realitychainsrv" "$ROOT_DIR/webui/RealityChain.asp" || fail "WebUI missing server render action"
+	grep -q "realitychainsrv:restart" "$ROOT_DIR/scripts/realitychain-webui.sh" || fail "backend missing server render event handler"
 }
 
 check_xray_arch_mapping() {
