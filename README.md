@@ -271,6 +271,137 @@ Expected result:
 - Xray starts on the Merlin router.
 - The kill switch reports `clear` while the tunnel process is running.
 
+## Client setup after the server is configured on another router
+
+Use this section when one router or server is already acting as the
+RealityChain/Xray server and this Asuswrt-Merlin router only needs to connect
+as the client.
+
+### 1. Collect values from the server router
+
+From the router/server that already has the server side configured, collect:
+
+```sh
+SERVER_ADDRESS=<server router public IP or DNS/DDNS name>
+SERVER_PORT=<server router public listening port>
+VLESS_UUID=<server VLESS UUID>
+REALITY_PUBLIC_KEY=<public key paired with the server private key>
+REALITY_SHORT_ID=<server short ID>
+REALITY_SERVER_NAME=vk.com
+REALITY_DEST=vk.com:443
+REALITY_FINGERPRINT=chrome
+```
+
+If the server is another home/office router, make sure its Xray REALITY
+listener is reachable from the client router:
+
+- The server router has a public IP address or working DDNS hostname.
+- TCP `SERVER_PORT` is open on the server router firewall.
+- If Xray is running behind another upstream router, TCP `SERVER_PORT` is
+  forwarded to the device running Xray.
+- The server-side Xray config uses the same `VLESS_UUID`,
+  `REALITY_SHORT_ID`, `REALITY_SERVER_NAME`, and `REALITY_DEST`.
+
+Do not copy the server's `REALITY_PRIVATE_KEY` into the client section. The
+client only needs `REALITY_PUBLIC_KEY`.
+
+### 2. Install RealityChain on the client router
+
+On the Merlin router that will act as the client:
+
+```sh
+cd /tmp
+# Copy or clone this repository onto the client router first.
+sh scripts/check-merlin-386-compat.sh
+sh scripts/install-merlin.sh
+```
+
+Open the Merlin WebUI and go to:
+
+```text
+Tools -> RealityChain -> Client setup - router outbound tunnel
+```
+
+### 3. Fill in the Client setup section
+
+Use the values from the server router:
+
+| Client setup field | Value |
+| --- | --- |
+| Enable at boot | checked |
+| Remote server address | `SERVER_ADDRESS` from the server router |
+| Remote server port | `SERVER_PORT` from the server router |
+| VLESS UUID | same `VLESS_UUID` as the server |
+| REALITY public key | server keypair public key |
+| REALITY short ID | same `REALITY_SHORT_ID` as the server |
+| REALITY server name | `vk.com` |
+| REALITY fingerprint | `chrome` |
+
+The REALITY destination is shown in the **Server setup** section because it is
+used when rendering the server config, but for this profile it must still match
+the server:
+
+```sh
+REALITY_DEST=vk.com:443
+```
+
+If you prefer editing the env file directly on the client router:
+
+```sh
+vi /jffs/addons/realitychain/client.env
+```
+
+Set:
+
+```sh
+SERVER_ADDRESS=<server router public IP or DNS/DDNS name>
+SERVER_PORT=<server router public listening port>
+VLESS_UUID=<same UUID as the server>
+REALITY_PUBLIC_KEY=<server public key>
+REALITY_SHORT_ID=<same short ID as the server>
+REALITY_SERVER_NAME=vk.com
+REALITY_DEST=vk.com:443
+REALITY_FINGERPRINT=chrome
+KILLSWITCH_ENABLED=1
+```
+
+### 4. Apply and test the client router
+
+In the WebUI, click **Apply and restart**. Or from SSH:
+
+```sh
+/opt/etc/init.d/S99realitychain restart
+```
+
+Check that Xray is running and that the kill switch is clear:
+
+```sh
+ps | grep '[x]ray'
+/jffs/addons/realitychain/realitychain-killswitch.sh status /jffs/addons/realitychain/client.env
+```
+
+Expected:
+
+- The router starts Xray with `xray-client.json`.
+- LAN clients are transparently routed through the tunnel.
+- The kill switch reports `clear` while the tunnel process is alive.
+
+If the tunnel does not come up, check:
+
+```sh
+/tmp/realitychain-xray.log
+/tmp/realitychain-webui-action.log
+```
+
+Most client-side failures are caused by one of these mismatches:
+
+- wrong server address or port,
+- blocked TCP port on the server router,
+- different `VLESS_UUID`,
+- different `REALITY_SHORT_ID`,
+- wrong `REALITY_PUBLIC_KEY`,
+- different `REALITY_SERVER_NAME` or `REALITY_DEST`.
+
 ## Development
 
 Run local validation:
