@@ -4,6 +4,15 @@ Native Apple Silicon macOS app that scans nearby Wi‑Fi access points (BSSID/MA
 
 See [`WiFiLocator/README.md`](WiFiLocator/README.md) for build and usage instructions.
 
+**Installable DMG** (on a Mac, or download the CI artifact from **Actions → Build DMG**):
+
+```bash
+cd WiFiLocator && ./Scripts/package-dmg.sh
+open dist/WiFiLocator-1.0-arm64.dmg
+```
+
+Or open the Xcode project:
+
 ```bash
 open WiFiLocator/WiFiLocator.xcodeproj
 ```

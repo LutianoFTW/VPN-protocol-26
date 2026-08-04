@@ -2,6 +2,35 @@
 
 Native **macOS (Apple Silicon)** app that scans nearby Wi‑Fi access points, collects IP addresses, and estimates the Mac’s physical location using public geolocation databases.
 
+## Install from DMG
+
+On a Mac (or via GitHub Actions), build the installable disk image:
+
+```bash
+cd WiFiLocator
+./Scripts/package-dmg.sh
+open dist/WiFiLocator-1.0-arm64.dmg
+```
+
+Then drag **WiFiLocator** into **Applications**.
+
+| Output | Path |
+|--------|------|
+| Disk image | `dist/WiFiLocator-1.0-arm64.dmg` |
+| Checksum | `dist/WiFiLocator-1.0-arm64.dmg.sha256` |
+
+CI also builds the DMG on every relevant push: **Actions → Build DMG → artifact `WiFiLocator-1.0-arm64-dmg`**.
+
+### First launch (ad-hoc / unsigned builds)
+
+If Gatekeeper blocks the app: right-click → **Open** → **Open**, or use **System Settings → Privacy & Security → Open Anyway**.
+
+For Developer ID distribution:
+
+```bash
+SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" ./Scripts/package-dmg.sh
+```
+
 ## What it does
 
 1. **Scans Wi‑Fi** via `CoreWLAN` (SSID, BSSID/MAC, RSSI, channel, band, security).
@@ -19,10 +48,10 @@ Native **macOS (Apple Silicon)** app that scans nearby Wi‑Fi access points, co
 
 - Mac with **Apple Silicon** (arm64)
 - **macOS 14 Sonoma** or later
-- **Xcode 15+**
+- **Xcode 15+** (to build the DMG)
 - **Location Services** allowed for the app (required by macOS to reveal SSIDs/BSSIDs)
 
-## Build & run
+## Build & run (without DMG)
 
 ```bash
 cd WiFiLocator
@@ -42,6 +71,9 @@ Or from the terminal on a Mac:
 cd WiFiLocator
 ./Scripts/build.sh
 open build/Build/Products/Debug/WiFiLocator.app
+
+# Release build:
+CONFIGURATION=Release ./Scripts/build.sh
 ```
 
 ## Usage
@@ -69,12 +101,14 @@ WiFiLocator/
 ├── WiFiLocator.xcodeproj
 ├── Scripts/
 │   ├── build.sh
+│   ├── package-dmg.sh      # Release .app → installable .dmg
 │   └── generate_xcodeproj.py
+├── dist/                   # Created by package-dmg.sh
 └── WiFiLocator/
     ├── WiFiLocatorApp.swift
     ├── ContentView.swift
     ├── Models/
-    ├── Services/          # CoreWLAN scanner, IP info, geolocation providers
+    ├── Services/
     ├── Views/
     ├── Resources/
     ├── Info.plist
