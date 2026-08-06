@@ -1,0 +1,108 @@
+name: Release DMG
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Marketing version (e.g. 1.0.0)"
+        required: true
+        default: "1.0.0"
+      create_release:
+        description: "Create a GitHub Release with the DMG attached"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-dmg:
+    name: Build & publish WiFiLocator.dmg
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: WiFiLocator
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+          uname -m
+
+      - name: Build Release app + DMG
+        env:
+          MARKETING_VERSION: ${{ steps.ver.outputs.version }}
+          SIGN_IDENTITY: "-"
+        run: |
+          chmod +x Scripts/package-dmg.sh Scripts/build.sh
+          ./Scripts/package-dmg.sh
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WiFiLocator-${{ steps.ver.outputs.version }}-arm64-dmg
+          path: |
+            WiFiLocator/dist/WiFiLocator-${{ steps.ver.outputs.version }}-arm64.dmg
+            WiFiLocator/dist/WiFiLocator-${{ steps.ver.outputs.version }}-arm64.dmg.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push' || inputs.create_release == true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}"
+          DMG="dist/WiFiLocator-${VERSION}-arm64.dmg"
+          SUM="dist/WiFiLocator-${VERSION}-arm64.dmg.sha256"
+          TITLE="WiFi Locator ${VERSION} (Apple Silicon)"
+
+          NOTES=$(cat <<EOF
+          ## WiFi Locator ${VERSION}
+
+          Native **macOS Apple Silicon** app that:
+          - Scans nearby Wi‑Fi networks (SSID, BSSID, RSSI, channel, security)
+          - Collects local/public IP + gateway info
+          - Estimates precise location via Apple WPS, BeaconDB, optional Google, and public IP
+          - Fuses multiple Wi‑Fi database results into a best fix
+
+          ### Install
+          1. Download \`WiFiLocator-${VERSION}-arm64.dmg\`
+          2. Open the disk image and drag **WiFiLocator** into **Applications**
+          3. First launch: right-click → **Open** if Gatekeeper blocks the ad-hoc signed build
+          4. Allow **Location Services** when prompted (required to read BSSIDs)
+
+          ### Requirements
+          - Apple Silicon Mac (arm64)
+          - macOS 14 Sonoma or later
+          EOF
+          )
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$DMG" "$SUM" --clobber
+          else
+            gh release create "$TAG" "$DMG" "$SUM" \
+              --title "$TITLE" \
+              --notes "$NOTES" \
+              --target "${{ github.sha }}"
+          fi
