@@ -1,0 +1,383 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5E0A5F9260405673BE585A09 /* WiFiLocatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB31B52921AF52CFA3EA4CA5 /* WiFiLocatorApp.swift */; };
+		63CA3CD0AD815581A92B1273 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C4FD2E249065B6A85151137 /* ContentView.swift */; };
+		F298F49FD8A75404A633EF20 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8732FCD1542759EAB9CEC860 /* Theme.swift */; };
+		8C1893E9C0CB5FD2A0B1ED88 /* AccessPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC981E7698B5500D89025BE8 /* AccessPoint.swift */; };
+		B8D2EAFEEF155A0EA060CDF6 /* LocationEstimate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7CCD38083C58C7BF0569D2 /* LocationEstimate.swift */; };
+		9E847FA7A2F8500A87A6DF8F /* ScanExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E19C0CDF6555A13BC6C9D9C /* ScanExport.swift */; };
+		D513FFC0BB0955B7ADB9B939 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37422595BF952B69BB95B2A /* AppModel.swift */; };
+		8B2CAEAA95D85A2EAFD67CE4 /* WiFiScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4905DF240782533FA24A89FE /* WiFiScanner.swift */; };
+		B3AA8F3E72B4560EA44CD6CB /* NetworkInfoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC87C099F4552EC99CD2CCE /* NetworkInfoService.swift */; };
+		3C7CCC26F2B251A2B7A54AA0 /* GeolocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86DE0632A96352349AA8B418 /* GeolocationService.swift */; };
+		6EF88B1845AE5C0E96D72D40 /* AppleWPSProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4094AF57EDFF5C3EA15262BC /* AppleWPSProvider.swift */; };
+		E25297C45763544C8B002FF0 /* BeaconDBProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E208627EAD580E9021A397 /* BeaconDBProvider.swift */; };
+		5546300B2510527FBB69BB71 /* GoogleGeolocationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5D8F0A2C35F0B8350495B /* GoogleGeolocationProvider.swift */; };
+		3F7718DA4CC25F00962C0C50 /* IPGeolocationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E7241DB646516997E5528C /* IPGeolocationProvider.swift */; };
+		10CCE51533A75C59A22C7C70 /* ReverseGeocoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF36E26C7DD5CCBA282E35E /* ReverseGeocoder.swift */; };
+		7D1472D53B5253A88AD17B75 /* MapLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57788525B9345AF2AE144698 /* MapLocationView.swift */; };
+		3E00595C6E925321BE6D4AB7 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66E1F1C096765F70B089B683 /* SettingsView.swift */; };
+		91D274B327AE5D99886E92B0 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028FDDA6D3AF5BC4823DF4F8 /* CoreWLAN.framework */; };
+		04ADEBB2610A5DCDA5E867C8 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B9E3D5BC045C618CCC9603 /* CoreLocation.framework */; };
+		034663A0725A570C82F441EB /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01651A6BB3255C5082AFC5EF /* MapKit.framework */; };
+		7DA5891CDC715E2DB397602F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F61E675EC6765DED89D4794E /* SystemConfiguration.framework */; };
+		CB5F4352DED358639A9E7679 /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B88707B3BC1556DB8D625C7E /* Network.framework */; };
+		2313FAA63D375687BB1AF8DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88282F1C02865D9E8979499A /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		214191C97B0F56438DDECB04 /* WiFiLocator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WiFiLocator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DB31B52921AF52CFA3EA4CA5 /* WiFiLocatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WiFiLocatorApp.swift; path = WiFiLocator/WiFiLocatorApp.swift; sourceTree = SOURCE_ROOT; };
+		1C4FD2E249065B6A85151137 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = WiFiLocator/ContentView.swift; sourceTree = SOURCE_ROOT; };
+		8732FCD1542759EAB9CEC860 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Theme.swift; path = WiFiLocator/Theme.swift; sourceTree = SOURCE_ROOT; };
+		EC981E7698B5500D89025BE8 /* AccessPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AccessPoint.swift; path = WiFiLocator/Models/AccessPoint.swift; sourceTree = SOURCE_ROOT; };
+		BE7CCD38083C58C7BF0569D2 /* LocationEstimate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationEstimate.swift; path = WiFiLocator/Models/LocationEstimate.swift; sourceTree = SOURCE_ROOT; };
+		3E19C0CDF6555A13BC6C9D9C /* ScanExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScanExport.swift; path = WiFiLocator/Models/ScanExport.swift; sourceTree = SOURCE_ROOT; };
+		B37422595BF952B69BB95B2A /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppModel.swift; path = WiFiLocator/Services/AppModel.swift; sourceTree = SOURCE_ROOT; };
+		4905DF240782533FA24A89FE /* WiFiScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WiFiScanner.swift; path = WiFiLocator/Services/WiFiScanner.swift; sourceTree = SOURCE_ROOT; };
+		9FC87C099F4552EC99CD2CCE /* NetworkInfoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NetworkInfoService.swift; path = WiFiLocator/Services/NetworkInfoService.swift; sourceTree = SOURCE_ROOT; };
+		86DE0632A96352349AA8B418 /* GeolocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GeolocationService.swift; path = WiFiLocator/Services/Geolocation/GeolocationService.swift; sourceTree = SOURCE_ROOT; };
+		4094AF57EDFF5C3EA15262BC /* AppleWPSProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppleWPSProvider.swift; path = WiFiLocator/Services/Geolocation/AppleWPSProvider.swift; sourceTree = SOURCE_ROOT; };
+		52E208627EAD580E9021A397 /* BeaconDBProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BeaconDBProvider.swift; path = WiFiLocator/Services/Geolocation/BeaconDBProvider.swift; sourceTree = SOURCE_ROOT; };
+		F4B5D8F0A2C35F0B8350495B /* GoogleGeolocationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GoogleGeolocationProvider.swift; path = WiFiLocator/Services/Geolocation/GoogleGeolocationProvider.swift; sourceTree = SOURCE_ROOT; };
+		F6E7241DB646516997E5528C /* IPGeolocationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IPGeolocationProvider.swift; path = WiFiLocator/Services/Geolocation/IPGeolocationProvider.swift; sourceTree = SOURCE_ROOT; };
+		8EF36E26C7DD5CCBA282E35E /* ReverseGeocoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReverseGeocoder.swift; path = WiFiLocator/Services/Geolocation/ReverseGeocoder.swift; sourceTree = SOURCE_ROOT; };
+		57788525B9345AF2AE144698 /* MapLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MapLocationView.swift; path = WiFiLocator/Views/MapLocationView.swift; sourceTree = SOURCE_ROOT; };
+		66E1F1C096765F70B089B683 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = WiFiLocator/Views/SettingsView.swift; sourceTree = SOURCE_ROOT; };
+		88282F1C02865D9E8979499A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = WiFiLocator/Resources/Assets.xcassets; sourceTree = SOURCE_ROOT; };
+		73F4841B891E5E94B1824E0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = WiFiLocator/Info.plist; sourceTree = SOURCE_ROOT; };
+		F67AD8FB35D75752BCF708F5 /* WiFiLocator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = WiFiLocator.entitlements; path = WiFiLocator/WiFiLocator.entitlements; sourceTree = SOURCE_ROOT; };
+		028FDDA6D3AF5BC4823DF4F8 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
+		C2B9E3D5BC045C618CCC9603 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		01651A6BB3255C5082AFC5EF /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		F61E675EC6765DED89D4794E /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		B88707B3BC1556DB8D625C7E /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		915DB98C5C0F5A878CC83F70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				91D274B327AE5D99886E92B0 /* CoreWLAN.framework in Frameworks */,
+				04ADEBB2610A5DCDA5E867C8 /* CoreLocation.framework in Frameworks */,
+				034663A0725A570C82F441EB /* MapKit.framework in Frameworks */,
+				7DA5891CDC715E2DB397602F /* SystemConfiguration.framework in Frameworks */,
+				CB5F4352DED358639A9E7679 /* Network.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		55E5CB6475F55F24A01CEB7D = {
+			isa = PBXGroup;
+			children = (
+				6227E27E51755272BED60222 /* WiFiLocator */,
+				1259C62685B65931920D9CC2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1259C62685B65931920D9CC2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				214191C97B0F56438DDECB04 /* WiFiLocator.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6227E27E51755272BED60222 /* WiFiLocator */ = {
+			isa = PBXGroup;
+			children = (
+				DB31B52921AF52CFA3EA4CA5 /* WiFiLocatorApp.swift */,
+				1C4FD2E249065B6A85151137 /* ContentView.swift */,
+				8732FCD1542759EAB9CEC860 /* Theme.swift */,
+				B5266B0510B655639BA80B00 /* Models */,
+				6A2321D9572852218A27E74C /* Services */,
+				A951419FF7545B21ABB0DCB4 /* Views */,
+				4324AAAF2E385C39BB853213 /* Resources */,
+				73F4841B891E5E94B1824E0B /* Info.plist */,
+				F67AD8FB35D75752BCF708F5 /* WiFiLocator.entitlements */,
+			);
+			name = WiFiLocator;
+			sourceTree = "<group>";
+		};
+		B5266B0510B655639BA80B00 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				EC981E7698B5500D89025BE8 /* AccessPoint.swift */,
+				BE7CCD38083C58C7BF0569D2 /* LocationEstimate.swift */,
+				3E19C0CDF6555A13BC6C9D9C /* ScanExport.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		6A2321D9572852218A27E74C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B37422595BF952B69BB95B2A /* AppModel.swift */,
+				4905DF240782533FA24A89FE /* WiFiScanner.swift */,
+				9FC87C099F4552EC99CD2CCE /* NetworkInfoService.swift */,
+				8C935D684E45526795C5AAE2 /* Geolocation */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
+		8C935D684E45526795C5AAE2 /* Geolocation */ = {
+			isa = PBXGroup;
+			children = (
+				86DE0632A96352349AA8B418 /* GeolocationService.swift */,
+				4094AF57EDFF5C3EA15262BC /* AppleWPSProvider.swift */,
+				52E208627EAD580E9021A397 /* BeaconDBProvider.swift */,
+				F4B5D8F0A2C35F0B8350495B /* GoogleGeolocationProvider.swift */,
+				F6E7241DB646516997E5528C /* IPGeolocationProvider.swift */,
+				8EF36E26C7DD5CCBA282E35E /* ReverseGeocoder.swift */,
+			);
+			name = Geolocation;
+			sourceTree = "<group>";
+		};
+		A951419FF7545B21ABB0DCB4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				57788525B9345AF2AE144698 /* MapLocationView.swift */,
+				66E1F1C096765F70B089B683 /* SettingsView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		4324AAAF2E385C39BB853213 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				88282F1C02865D9E8979499A /* Assets.xcassets */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DEE8EB96DF32522BB4A72551 /* WiFiLocator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C91ED856F8875809977E405A /* Build configuration list for PBXNativeTarget "WiFiLocator" */;
+			buildPhases = (
+				094497122DBF51B689AF697C /* Sources */,
+				915DB98C5C0F5A878CC83F70 /* Frameworks */,
+				9D9B52A1954E518E98FF6630 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WiFiLocator;
+			productName = WiFiLocator;
+			productReference = 214191C97B0F56438DDECB04 /* WiFiLocator.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A5DBB438CA1052D8AF365D7A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+			};
+			buildConfigurationList = 9C5D57D6CB87513289076684 /* Build configuration list for PBXProject "WiFiLocator" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 55E5CB6475F55F24A01CEB7D;
+			productRefGroup = 1259C62685B65931920D9CC2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DEE8EB96DF32522BB4A72551 /* WiFiLocator */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9D9B52A1954E518E98FF6630 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2313FAA63D375687BB1AF8DC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		094497122DBF51B689AF697C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5E0A5F9260405673BE585A09 /* WiFiLocatorApp.swift in Sources */,
+				63CA3CD0AD815581A92B1273 /* ContentView.swift in Sources */,
+				F298F49FD8A75404A633EF20 /* Theme.swift in Sources */,
+				8C1893E9C0CB5FD2A0B1ED88 /* AccessPoint.swift in Sources */,
+				B8D2EAFEEF155A0EA060CDF6 /* LocationEstimate.swift in Sources */,
+				9E847FA7A2F8500A87A6DF8F /* ScanExport.swift in Sources */,
+				D513FFC0BB0955B7ADB9B939 /* AppModel.swift in Sources */,
+				8B2CAEAA95D85A2EAFD67CE4 /* WiFiScanner.swift in Sources */,
+				B3AA8F3E72B4560EA44CD6CB /* NetworkInfoService.swift in Sources */,
+				3C7CCC26F2B251A2B7A54AA0 /* GeolocationService.swift in Sources */,
+				6EF88B1845AE5C0E96D72D40 /* AppleWPSProvider.swift in Sources */,
+				E25297C45763544C8B002FF0 /* BeaconDBProvider.swift in Sources */,
+				5546300B2510527FBB69BB71 /* GoogleGeolocationProvider.swift in Sources */,
+				3F7718DA4CC25F00962C0C50 /* IPGeolocationProvider.swift in Sources */,
+				10CCE51533A75C59A22C7C70 /* ReverseGeocoder.swift in Sources */,
+				7D1472D53B5253A88AD17B75 /* MapLocationView.swift in Sources */,
+				3E00595C6E925321BE6D4AB7 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BE491F75EF355AC3B14F6BA7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AC6887ED819750FA8679FEE9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		09B80D9F5866580E9C52098B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WiFiLocator/WiFiLocator.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				EXCLUDED_ARCHS = "x86_64 i386";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WiFiLocator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wifilocator.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7B86742CC5B65A25BFB8E98F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WiFiLocator/WiFiLocator.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				EXCLUDED_ARCHS = "x86_64 i386";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WiFiLocator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wifilocator.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9C5D57D6CB87513289076684 /* Build configuration list for PBXProject "WiFiLocator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE491F75EF355AC3B14F6BA7 /* Debug */,
+				AC6887ED819750FA8679FEE9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C91ED856F8875809977E405A /* Build configuration list for PBXNativeTarget "WiFiLocator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09B80D9F5866580E9C52098B /* Debug */,
+				7B86742CC5B65A25BFB8E98F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A5DBB438CA1052D8AF365D7A /* Project object */;
+}
