@@ -1,36 +1,39 @@
 #!/usr/bin/env python3
-"""Generate WiFiLocator.xcodeproj/project.pbxproj for arm64 macOS."""
+"""Generate WiFiLocator.xcodeproj/project.pbxproj for arm64 macOS.
+
+Uses SOURCE_ROOT-relative paths for every file so CI/xcodebuild resolves
+inputs reliably (avoids group-relative path bugs with WMO builds).
+"""
 
 from pathlib import Path
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "WiFiLocator"
 OUT = ROOT / "WiFiLocator.xcodeproj" / "project.pbxproj"
 
+# Paths relative to the Xcode project directory (WiFiLocator/)
 SOURCES = [
-    "WiFiLocatorApp.swift",
-    "ContentView.swift",
-    "Theme.swift",
-    "Models/AccessPoint.swift",
-    "Models/LocationEstimate.swift",
-    "Models/ScanExport.swift",
-    "Services/AppModel.swift",
-    "Services/WiFiScanner.swift",
-    "Services/NetworkInfoService.swift",
-    "Services/Geolocation/GeolocationService.swift",
-    "Services/Geolocation/AppleWPSProvider.swift",
-    "Services/Geolocation/BeaconDBProvider.swift",
-    "Services/Geolocation/GoogleGeolocationProvider.swift",
-    "Services/Geolocation/IPGeolocationProvider.swift",
-    "Services/Geolocation/ReverseGeocoder.swift",
-    "Views/MapLocationView.swift",
-    "Views/SettingsView.swift",
+    "WiFiLocator/WiFiLocatorApp.swift",
+    "WiFiLocator/ContentView.swift",
+    "WiFiLocator/Theme.swift",
+    "WiFiLocator/Models/AccessPoint.swift",
+    "WiFiLocator/Models/LocationEstimate.swift",
+    "WiFiLocator/Models/ScanExport.swift",
+    "WiFiLocator/Services/AppModel.swift",
+    "WiFiLocator/Services/WiFiScanner.swift",
+    "WiFiLocator/Services/NetworkInfoService.swift",
+    "WiFiLocator/Services/Geolocation/GeolocationService.swift",
+    "WiFiLocator/Services/Geolocation/AppleWPSProvider.swift",
+    "WiFiLocator/Services/Geolocation/BeaconDBProvider.swift",
+    "WiFiLocator/Services/Geolocation/GoogleGeolocationProvider.swift",
+    "WiFiLocator/Services/Geolocation/IPGeolocationProvider.swift",
+    "WiFiLocator/Services/Geolocation/ReverseGeocoder.swift",
+    "WiFiLocator/Views/MapLocationView.swift",
+    "WiFiLocator/Views/SettingsView.swift",
 ]
 
 
 def gid(name: str) -> str:
-    """Stable-ish 24-hex ID derived from name."""
     return uuid.uuid5(uuid.NAMESPACE_URL, f"wifilocation:{name}").hex[:24].upper()
 
 
@@ -75,9 +78,17 @@ for path in SOURCES:
     file_entries.append((path, fid, name))
     build_files.append((bid, fid, name))
 
-assets_build = gid("build:assets")
 
-lines = []
+def file_id(path: str) -> str:
+    return gid(f"file:{path}")
+
+
+assets_build = gid("build:assets")
+assets_path = "WiFiLocator/Resources/Assets.xcassets"
+info_path = "WiFiLocator/Info.plist"
+entitlements_path = "WiFiLocator/WiFiLocator.entitlements"
+
+lines: list[str] = []
 lines.append("// !$*UTF8*$!")
 lines.append("{")
 lines.append("\tarchiveVersion = 1;")
@@ -87,7 +98,6 @@ lines.append("\tobjectVersion = 56;")
 lines.append("\tobjects = {")
 lines.append("")
 
-# PBXBuildFile
 lines.append("/* Begin PBXBuildFile section */")
 for bid, fid, name in build_files:
     lines.append(f"\t\t{bid} /* {name} in Sources */ = {{isa = PBXBuildFile; fileRef = {fid} /* {name} */; }};")
@@ -98,23 +108,22 @@ lines.append(f"\t\t{assets_build} /* Assets.xcassets in Resources */ = {{isa = P
 lines.append("/* End PBXBuildFile section */")
 lines.append("")
 
-# PBXFileReference
 lines.append("/* Begin PBXFileReference section */")
 lines.append(
     f"\t\t{product_ref} /* WiFiLocator.app */ = {{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WiFiLocator.app; sourceTree = BUILT_PRODUCTS_DIR; }};"
 )
 for path, fid, name in file_entries:
     lines.append(
-        f"\t\t{fid} /* {name} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = {name}; sourceTree = \"<group>\"; }};"
+        f"\t\t{fid} /* {name} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = {name}; path = {path}; sourceTree = SOURCE_ROOT; }};"
     )
 lines.append(
-    f"\t\t{assets_ref} /* Assets.xcassets */ = {{isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = \"<group>\"; }};"
+    f"\t\t{assets_ref} /* Assets.xcassets */ = {{isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = {assets_path}; sourceTree = SOURCE_ROOT; }};"
 )
 lines.append(
-    f"\t\t{info_ref} /* Info.plist */ = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = \"<group>\"; }};"
+    f"\t\t{info_ref} /* Info.plist */ = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = {info_path}; sourceTree = SOURCE_ROOT; }};"
 )
 lines.append(
-    f"\t\t{entitlements_ref} /* WiFiLocator.entitlements */ = {{isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WiFiLocator.entitlements; sourceTree = \"<group>\"; }};"
+    f"\t\t{entitlements_ref} /* WiFiLocator.entitlements */ = {{isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = WiFiLocator.entitlements; path = {entitlements_path}; sourceTree = SOURCE_ROOT; }};"
 )
 for fname, fid in frameworks:
     lines.append(
@@ -123,7 +132,6 @@ for fname, fid in frameworks:
 lines.append("/* End PBXFileReference section */")
 lines.append("")
 
-# Frameworks phase
 lines.append("/* Begin PBXFrameworksBuildPhase section */")
 lines.append(f"\t\t{frameworks_phase} /* Frameworks */ = {{")
 lines.append("\t\t\tisa = PBXFrameworksBuildPhase;")
@@ -137,13 +145,6 @@ lines.append("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
 lines.append("\t\t};")
 lines.append("/* End PBXFrameworksBuildPhase section */")
 lines.append("")
-
-# Groups — file refs for nested files need correct path grouping.
-# We'll put files into groups by folder; file refs use path = filename only,
-# so groups must set path to the folder.
-
-def file_id(path: str) -> str:
-    return gid(f"file:{path}")
 
 lines.append("/* Begin PBXGroup section */")
 lines.append(f"\t\t{main_group} = {{")
@@ -167,9 +168,9 @@ lines.append("\t\t};")
 lines.append(f"\t\t{src_group} /* WiFiLocator */ = {{")
 lines.append("\t\t\tisa = PBXGroup;")
 lines.append("\t\t\tchildren = (")
-lines.append(f"\t\t\t\t{file_id('WiFiLocatorApp.swift')} /* WiFiLocatorApp.swift */,")
-lines.append(f"\t\t\t\t{file_id('ContentView.swift')} /* ContentView.swift */,")
-lines.append(f"\t\t\t\t{file_id('Theme.swift')} /* Theme.swift */,")
+lines.append(f"\t\t\t\t{file_id('WiFiLocator/WiFiLocatorApp.swift')} /* WiFiLocatorApp.swift */,")
+lines.append(f"\t\t\t\t{file_id('WiFiLocator/ContentView.swift')} /* ContentView.swift */,")
+lines.append(f"\t\t\t\t{file_id('WiFiLocator/Theme.swift')} /* Theme.swift */,")
 lines.append(f"\t\t\t\t{models_group} /* Models */,")
 lines.append(f"\t\t\t\t{services_group} /* Services */,")
 lines.append(f"\t\t\t\t{views_group} /* Views */,")
@@ -177,30 +178,36 @@ lines.append(f"\t\t\t\t{resources_group} /* Resources */,")
 lines.append(f"\t\t\t\t{info_ref} /* Info.plist */,")
 lines.append(f"\t\t\t\t{entitlements_ref} /* WiFiLocator.entitlements */,")
 lines.append("\t\t\t);")
-lines.append("\t\t\tpath = WiFiLocator;")
+lines.append("\t\t\tname = WiFiLocator;")
 lines.append("\t\t\tsourceTree = \"<group>\";")
 lines.append("\t\t};")
 
 lines.append(f"\t\t{models_group} /* Models */ = {{")
 lines.append("\t\t\tisa = PBXGroup;")
 lines.append("\t\t\tchildren = (")
-lines.append(f"\t\t\t\t{file_id('Models/AccessPoint.swift')} /* AccessPoint.swift */,")
-lines.append(f"\t\t\t\t{file_id('Models/LocationEstimate.swift')} /* LocationEstimate.swift */,")
-lines.append(f"\t\t\t\t{file_id('Models/ScanExport.swift')} /* ScanExport.swift */,")
+for p in [
+    "WiFiLocator/Models/AccessPoint.swift",
+    "WiFiLocator/Models/LocationEstimate.swift",
+    "WiFiLocator/Models/ScanExport.swift",
+]:
+    lines.append(f"\t\t\t\t{file_id(p)} /* {Path(p).name} */,")
 lines.append("\t\t\t);")
-lines.append("\t\t\tpath = Models;")
+lines.append("\t\t\tname = Models;")
 lines.append("\t\t\tsourceTree = \"<group>\";")
 lines.append("\t\t};")
 
 lines.append(f"\t\t{services_group} /* Services */ = {{")
 lines.append("\t\t\tisa = PBXGroup;")
 lines.append("\t\t\tchildren = (")
-lines.append(f"\t\t\t\t{file_id('Services/AppModel.swift')} /* AppModel.swift */,")
-lines.append(f"\t\t\t\t{file_id('Services/WiFiScanner.swift')} /* WiFiScanner.swift */,")
-lines.append(f"\t\t\t\t{file_id('Services/NetworkInfoService.swift')} /* NetworkInfoService.swift */,")
+for p in [
+    "WiFiLocator/Services/AppModel.swift",
+    "WiFiLocator/Services/WiFiScanner.swift",
+    "WiFiLocator/Services/NetworkInfoService.swift",
+]:
+    lines.append(f"\t\t\t\t{file_id(p)} /* {Path(p).name} */,")
 lines.append(f"\t\t\t\t{geo_group} /* Geolocation */,")
 lines.append("\t\t\t);")
-lines.append("\t\t\tpath = Services;")
+lines.append("\t\t\tname = Services;")
 lines.append("\t\t\tsourceTree = \"<group>\";")
 lines.append("\t\t};")
 
@@ -208,27 +215,29 @@ lines.append(f"\t\t{geo_group} /* Geolocation */ = {{")
 lines.append("\t\t\tisa = PBXGroup;")
 lines.append("\t\t\tchildren = (")
 for p in [
-    "Services/Geolocation/GeolocationService.swift",
-    "Services/Geolocation/AppleWPSProvider.swift",
-    "Services/Geolocation/BeaconDBProvider.swift",
-    "Services/Geolocation/GoogleGeolocationProvider.swift",
-    "Services/Geolocation/IPGeolocationProvider.swift",
-    "Services/Geolocation/ReverseGeocoder.swift",
+    "WiFiLocator/Services/Geolocation/GeolocationService.swift",
+    "WiFiLocator/Services/Geolocation/AppleWPSProvider.swift",
+    "WiFiLocator/Services/Geolocation/BeaconDBProvider.swift",
+    "WiFiLocator/Services/Geolocation/GoogleGeolocationProvider.swift",
+    "WiFiLocator/Services/Geolocation/IPGeolocationProvider.swift",
+    "WiFiLocator/Services/Geolocation/ReverseGeocoder.swift",
 ]:
-    name = Path(p).name
-    lines.append(f"\t\t\t\t{file_id(p)} /* {name} */,")
+    lines.append(f"\t\t\t\t{file_id(p)} /* {Path(p).name} */,")
 lines.append("\t\t\t);")
-lines.append("\t\t\tpath = Geolocation;")
+lines.append("\t\t\tname = Geolocation;")
 lines.append("\t\t\tsourceTree = \"<group>\";")
 lines.append("\t\t};")
 
 lines.append(f"\t\t{views_group} /* Views */ = {{")
 lines.append("\t\t\tisa = PBXGroup;")
 lines.append("\t\t\tchildren = (")
-lines.append(f"\t\t\t\t{file_id('Views/MapLocationView.swift')} /* MapLocationView.swift */,")
-lines.append(f"\t\t\t\t{file_id('Views/SettingsView.swift')} /* SettingsView.swift */,")
+for p in [
+    "WiFiLocator/Views/MapLocationView.swift",
+    "WiFiLocator/Views/SettingsView.swift",
+]:
+    lines.append(f"\t\t\t\t{file_id(p)} /* {Path(p).name} */,")
 lines.append("\t\t\t);")
-lines.append("\t\t\tpath = Views;")
+lines.append("\t\t\tname = Views;")
 lines.append("\t\t\tsourceTree = \"<group>\";")
 lines.append("\t\t};")
 
@@ -237,17 +246,16 @@ lines.append("\t\t\tisa = PBXGroup;")
 lines.append("\t\t\tchildren = (")
 lines.append(f"\t\t\t\t{assets_ref} /* Assets.xcassets */,")
 lines.append("\t\t\t);")
-lines.append("\t\t\tpath = Resources;")
+lines.append("\t\t\tname = Resources;")
 lines.append("\t\t\tsourceTree = \"<group>\";")
 lines.append("\t\t};")
 lines.append("/* End PBXGroup section */")
 lines.append("")
 
-# Native target
 lines.append("/* Begin PBXNativeTarget section */")
 lines.append(f"\t\t{target_id} /* WiFiLocator */ = {{")
 lines.append("\t\t\tisa = PBXNativeTarget;")
-lines.append("\t\t\tbuildConfigurationList = " + target_config_list + " /* Build configuration list for PBXNativeTarget \"WiFiLocator\" */;")
+lines.append(f"\t\t\tbuildConfigurationList = {target_config_list} /* Build configuration list for PBXNativeTarget \"WiFiLocator\" */;")
 lines.append("\t\t\tbuildPhases = (")
 lines.append(f"\t\t\t\t{sources_phase} /* Sources */,")
 lines.append(f"\t\t\t\t{frameworks_phase} /* Frameworks */,")
@@ -265,7 +273,6 @@ lines.append("\t\t};")
 lines.append("/* End PBXNativeTarget section */")
 lines.append("")
 
-# Project
 lines.append("/* Begin PBXProject section */")
 lines.append(f"\t\t{project_id} /* Project object */ = {{")
 lines.append("\t\t\tisa = PBXProject;")
@@ -283,7 +290,7 @@ lines.append("\t\t\t\ten,")
 lines.append("\t\t\t\tBase,")
 lines.append("\t\t\t);")
 lines.append(f"\t\t\tmainGroup = {main_group};")
-lines.append("\t\t\tproductRefGroup = " + products_group + " /* Products */;")
+lines.append(f"\t\t\tproductRefGroup = {products_group} /* Products */;")
 lines.append("\t\t\tprojectDirPath = \"\";")
 lines.append("\t\t\tprojectRoot = \"\";")
 lines.append("\t\t\ttargets = (")
@@ -293,7 +300,6 @@ lines.append("\t\t};")
 lines.append("/* End PBXProject section */")
 lines.append("")
 
-# Resources
 lines.append("/* Begin PBXResourcesBuildPhase section */")
 lines.append(f"\t\t{resources_phase} /* Resources */ = {{")
 lines.append("\t\t\tisa = PBXResourcesBuildPhase;")
@@ -306,7 +312,6 @@ lines.append("\t\t};")
 lines.append("/* End PBXResourcesBuildPhase section */")
 lines.append("")
 
-# Sources
 lines.append("/* Begin PBXSourcesBuildPhase section */")
 lines.append(f"\t\t{sources_phase} /* Sources */ = {{")
 lines.append("\t\t\tisa = PBXSourcesBuildPhase;")
@@ -320,7 +325,6 @@ lines.append("\t\t};")
 lines.append("/* End PBXSourcesBuildPhase section */")
 lines.append("")
 
-# Build configurations
 common_project = """
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -362,22 +366,25 @@ target_settings = f"""
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = WiFiLocator/WiFiLocator.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = {entitlements_path};
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXCLUDED_ARCHS = \"x86_64 i386\";
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = WiFiLocator/Info.plist;
+				INFOPLIST_FILE = {info_path};
 				LD_RUNPATH_SEARCH_PATHS = (
 					\"$(inherited)\",
 					\"@executable_path/../Frameworks\",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wifilocator.app;
 				PRODUCT_NAME = \"$(TARGET_NAME)\";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -426,6 +433,14 @@ lines.append("\t};")
 lines.append(f"\trootObject = {project_id} /* Project object */;")
 lines.append("}")
 
+# Verify every source path exists before writing.
+missing = [p for p in SOURCES if not (ROOT / p).is_file()]
+if missing:
+    raise SystemExit("Missing source files:\n  " + "\n  ".join(missing))
+if not (ROOT / assets_path).is_dir():
+    raise SystemExit(f"Missing assets: {assets_path}")
+
 OUT.parent.mkdir(parents=True, exist_ok=True)
 OUT.write_text("\n".join(lines) + "\n")
 print(f"Wrote {OUT}")
+print(f"Sources: {len(SOURCES)}")
